@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Sidebar } from "./sidebar";
 import { Header } from "./header";
 
-interface AdminLayoutProps {
+type AdminLayoutProps = {
     children: ReactNode;
     title?: string;
 }

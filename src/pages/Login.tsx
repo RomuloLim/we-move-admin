@@ -1,17 +1,30 @@
 import React, { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, Navigate } from "react-router-dom"
 import { Input } from "@/components/Input"
 import { Button } from "@/components/Button"
-import { Mail, Lock } from "lucide-react"
+import { Mail, Lock, AlertCircle } from "lucide-react"
+import { useAuth } from "@/hooks/useAuth"
 
 export default function Login() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [error, setError] = useState("")
+    const { login, isAuthenticated, isLoading } = useAuth()
 
-    const handleSubmit = (e: React.FormEvent) => {
+    // Redirect if already authenticated
+    if (isAuthenticated) {
+        return <Navigate to="/" replace />
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        // TODO: Implementar lógica de login
-        console.log("Login attempt:", { email, password })
+        setError("")
+
+        try {
+            await login({ email, password })
+        } catch (err: any) {
+            setError(err.message || "Erro ao realizar login. Tente novamente.")
+        }
     }
 
     return (
@@ -34,6 +47,14 @@ export default function Login() {
                         </div>
                     </div>
 
+                    {/* Error Message */}
+                    {error && (
+                        <div className="flex items-center gap-2 p-3 bg-error-50 border border-error-200 rounded-lg">
+                            <AlertCircle className="w-5 h-5 text-error-600 flex-shrink-0" />
+                            <p className="text-sm text-error-700">{error}</p>
+                        </div>
+                    )}
+
                     {/* Input Fields */}
                     <div className="space-y-4">
                         {/* Email Input */}
@@ -46,6 +67,7 @@ export default function Login() {
                             leftIcon={<Mail className="w-4 h-4" />}
                             size="lg"
                             required
+                            disabled={isLoading}
                         />
 
                         {/* Password Input */}
@@ -58,6 +80,7 @@ export default function Login() {
                             leftIcon={<Lock className="w-4 h-4" />}
                             size="lg"
                             required
+                            disabled={isLoading}
                         />
                     </div>
 
@@ -68,22 +91,10 @@ export default function Login() {
                             className="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 shadow-md hover:shadow-lg transition-all duration-200"
                             size="lg"
                             variant="primary"
+                            disabled={isLoading}
                         >
-                            Login
+                            {isLoading ? "Entrando..." : "Login"}
                         </Button>
-                    </div>
-
-                    {/* Register Link */}
-                    <div className="text-center pt-2">
-                        <p className="text-xs text-gray-600 md:text-sm">
-                            Ainda não possui cadastro?{" "}
-                            <Link
-                                to="/register"
-                                className="text-blue-600 font-semibold hover:text-blue-700 hover:underline transition-all duration-200"
-                            >
-                                Registre-se
-                            </Link>
-                        </p>
                     </div>
                 </form>
             </div>

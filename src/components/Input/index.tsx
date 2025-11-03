@@ -23,17 +23,16 @@ const inputVariants = cva(
     }
 )
 
-export interface InputProps
-    extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size">,
-    VariantProps<typeof inputVariants> {
-    label?: string
-    hint?: string
-    error?: string
-    leftIcon?: React.ReactNode
-    rightIcon?: React.ReactNode
-}
+export type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> &
+    VariantProps<typeof inputVariants> & {
+        label?: string
+        hint?: string
+        error?: string
+        leftIcon?: React.ReactNode
+        rightIcon?: React.ReactNode
+    }
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     ({ className, variant, size, type, label, hint, error, leftIcon, rightIcon, disabled, ...props }, ref) => {
         const hasError = error || variant === "error"
         const inputVariant = hasError ? "error" : "default"
@@ -81,4 +80,4 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 )
 Input.displayName = "Input"
 
-export { Input, inputVariants }
+export { inputVariants }

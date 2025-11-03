@@ -15,16 +15,17 @@ import {
     GraduationCap,
     MapPinned,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
-interface SidebarProps {
+type SidebarProps = {
     className?: string;
 }
 
-interface MenuItem {
+type MenuItem = {
     title: string;
     icon: any;
     href?: string;
@@ -98,6 +99,7 @@ const menuItems: MenuItem[] = [
 export function Sidebar({ className }: SidebarProps) {
     const location = useLocation();
     const [openMenus, setOpenMenus] = useState<string[]>([]);
+    const { user, logout } = useAuth();
 
     const toggleMenu = (title: string) => {
         setOpenMenus((prev) =>
@@ -112,6 +114,14 @@ export function Sidebar({ className }: SidebarProps) {
     const isSubItemActive = (subItems?: { href: string }[]) => {
         if (!subItems) return false;
         return subItems.some((item) => location.pathname === item.href);
+    };
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+        } catch (error) {
+            console.error('Error logging out:', error);
+        }
     };
 
     return (
@@ -208,17 +218,19 @@ export function Sidebar({ className }: SidebarProps) {
             <div className="border-t p-4">
                 <div className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-accent transition-colors">
                     <Avatar className="h-9 w-9">
-                        <AvatarImage src="https://github.com/shadcn.png" alt="Admin" />
-                        <AvatarFallback>AD</AvatarFallback>
+                        <AvatarFallback>
+                            {user?.name?.substring(0, 2).toUpperCase() || 'AD'}
+                        </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-1 flex-col">
-                        <span className="text-sm font-medium">Administrador</span>
-                        <span className="text-xs text-muted-foreground">admin@wemove.com</span>
+                        <span className="text-sm font-medium">{user?.name || 'Administrador'}</span>
+                        <span className="text-xs text-muted-foreground">{user?.email || 'admin@wemove.com'}</span>
                     </div>
                 </div>
                 <Separator className="my-3" />
                 <button
                     type="button"
+                    onClick={handleLogout}
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                 >
                     <LogOut className="h-5 w-5" />

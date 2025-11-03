@@ -23,17 +23,16 @@ const textareaVariants = cva(
     }
 )
 
-export interface TextareaProps
-    extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "size">,
-    VariantProps<typeof textareaVariants> {
-    label?: string
-    hint?: string
-    error?: string
-    maxLength?: number
-    showCharCount?: boolean
-}
+export type TextareaProps = Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "size"> &
+    VariantProps<typeof textareaVariants> & {
+        label?: string
+        hint?: string
+        error?: string
+        maxLength?: number
+        showCharCount?: boolean
+    }
 
-const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     ({
         className,
         variant,
@@ -89,4 +88,4 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
 )
 Textarea.displayName = "Textarea"
 
-export { Textarea, textareaVariants }
+export { textareaVariants }

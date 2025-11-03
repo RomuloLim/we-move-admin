@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 
 type Theme = 'light' | 'dark' | 'system'
 
-interface ThemeContextType {
+type ThemeContextType = {
     theme: Theme
     setTheme: (theme: Theme) => void
     resolvedTheme: 'light' | 'dark'
@@ -10,7 +10,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-interface ThemeProviderProps {
+type ThemeProviderProps = {
     children: React.ReactNode
     defaultTheme?: Theme
     storageKey?: string

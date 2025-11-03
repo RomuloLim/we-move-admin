@@ -1,7 +1,7 @@
 import { MobileSidebar } from "./mobile-sidebar";
 import { ThemeToggle } from "@/components/theme-toggle";
 
-interface HeaderProps {
+type HeaderProps = {
     title?: string;
 }
 
