@@ -34,7 +34,7 @@ const buttonVariants = cva(
                 destructive:
                     "bg-error-600 text-white shadow-sm hover:bg-error-700 focus-visible:ring-error-300 active:bg-error-700",
                 "destructive-secondary":
-                    "border border-error-300 bg-white text-error-700 shadow-sm hover:bg-error-50 hover:text-error-800 focus-visible:ring-error-300 active:bg-error-50",
+                    "border border-error-700 text-error-700 shadow-sm hover:bg-error-700 hover:text-white focus-visible:ring-error-300 active:bg-error-50",
                 "destructive-tertiary":
                     "text-error-700 hover:bg-error-50 hover:text-error-800 focus-visible:ring-error-300 active:bg-error-50",
                 "destructive-quaternary":
