@@ -5,3 +5,11 @@ export type {
     LoginResponse,
     AuthContextType,
 } from './auth';
+
+export type {
+    Vehicle,
+    VehicleFormData,
+    VehicleListResponse,
+    VehicleResponse,
+    VehicleFilters,
+} from './vehicle';

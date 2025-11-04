@@ -5,11 +5,12 @@ import { ProtectedRoute } from "@/components/auth/protected-route";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
+import VehicleList from "@/pages/Vehicles/VehicleList";
 import { ComponentShowcase } from "./components/component-showcase";
 
 export function App() {
   return (
-    <ThemeProvider defaultTheme="light">
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <Router>
         <AuthProvider>
           <Routes>
@@ -27,6 +28,16 @@ export function App() {
               element={
                 <ProtectedRoute>
                   <ComponentShowcase />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Vehicle Routes */}
+            <Route
+              path="/vehicles"
+              element={
+                <ProtectedRoute>
+                  <VehicleList />
                 </ProtectedRoute>
               }
             />

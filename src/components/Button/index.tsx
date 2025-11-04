@@ -39,6 +39,15 @@ const buttonVariants = cva(
                     "text-error-700 hover:bg-error-50 hover:text-error-800 focus-visible:ring-error-300 active:bg-error-50",
                 "destructive-quaternary":
                     "text-error-700 underline-offset-4 hover:underline hover:text-error-800 focus-visible:ring-error-300",
+                // warning variants
+                warning:
+                    "bg-warning-400 text-white shadow-sm hover:bg-warning-500 focus-visible:ring-warning-300 active:bg-warning-700",
+                "warning-secondary":
+                    "border border-warning-700 text-warning-700 shadow-sm hover:bg-warning-700 hover:text-white focus-visible:ring-warning-300 active:bg-warning-50",
+                "warning-tertiary":
+                    "text-warning-700 hover:bg-warning-50 hover:text-warning-800 focus-visible:ring-warning-300 active:bg-warning-50",
+                "warning-quaternary":
+                    "text-warning-700 underline-offset-4 hover:underline hover:text-warning-800 focus-visible:ring-warning-300",
                 // Disabled state
                 disabled:
                     "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed",
