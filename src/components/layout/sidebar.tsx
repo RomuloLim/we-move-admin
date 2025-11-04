@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Home,
     FileText,
@@ -100,6 +100,29 @@ export function Sidebar({ className }: SidebarProps) {
     const location = useLocation();
     const [openMenus, setOpenMenus] = useState<string[]>([]);
     const { user, logout } = useAuth();
+
+    // Abre automaticamente o menu que contém a rota atual
+    useEffect(() => {
+        const menusToOpen: string[] = [];
+
+        menuItems.forEach((item) => {
+            if (item.subItems) {
+                const hasActiveSubItem = item.subItems.some(
+                    (subItem) => location.pathname === subItem.href
+                );
+                if (hasActiveSubItem) {
+                    menusToOpen.push(item.title);
+                }
+            }
+        });
+
+        if (menusToOpen.length > 0) {
+            setOpenMenus((prev) => {
+                const newMenus = [...new Set([...prev, ...menusToOpen])];
+                return newMenus;
+            });
+        }
+    }, [location.pathname]);
 
     const toggleMenu = (title: string) => {
         setOpenMenus((prev) =>
