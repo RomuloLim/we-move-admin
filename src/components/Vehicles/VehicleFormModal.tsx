@@ -29,12 +29,8 @@ export function VehicleFormModal({ open, onOpenChange, vehicleId, onSuccess }: V
     const [error, setError] = useState<string | null>(null);
     const [formData, setFormData] = useState<VehicleFormData>({
         license_plate: '',
-        brand: '',
         model: '',
-        year: new Date().getFullYear(),
-        color: '',
-        capacity: 4,
-        status: 'available',
+        capacity: 25
     });
     const [errors, setErrors] = useState<Partial<Record<keyof VehicleFormData, string>>>({});
 
@@ -50,12 +46,8 @@ export function VehicleFormModal({ open, onOpenChange, vehicleId, onSuccess }: V
     function resetForm() {
         setFormData({
             license_plate: '',
-            brand: '',
             model: '',
-            year: new Date().getFullYear(),
-            color: '',
-            capacity: 4,
-            status: 'available',
+            capacity: 25
         });
         setErrors({});
         setError(null);
@@ -69,12 +61,8 @@ export function VehicleFormModal({ open, onOpenChange, vehicleId, onSuccess }: V
 
             setFormData({
                 license_plate: vehicle.license_plate,
-                brand: vehicle.brand,
                 model: vehicle.model,
-                year: vehicle.year,
-                color: vehicle.color,
                 capacity: vehicle.capacity,
-                status: vehicle.status,
             });
         } catch (err) {
             setError('Erro ao carregar veículo. Tente novamente.');
