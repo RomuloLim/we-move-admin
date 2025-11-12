@@ -1,23 +1,9 @@
-export type User = {
-    id: number;
-    name: string;
-    email: string;
-    email_verified_at: string | null;
-    cpf: string;
-    rg: string;
-    phone_contact: string;
-    user_type: 'admin' | 'driver';
-    created_at: string;
-    updated_at: string;
-    profile_picture_url?: string;
-};
-
-export type LoginCredentials = {
+type LoginCredentials = {
     email: string;
     password: string;
 };
 
-export type LoginResponse = {
+type LoginResponse = {
     message: string;
     data: {
         user: User;
@@ -26,7 +12,7 @@ export type LoginResponse = {
     };
 };
 
-export type AuthContextType = {
+type AuthContextType = {
     user: User | null;
     token: string | null;
     isAuthenticated: boolean;

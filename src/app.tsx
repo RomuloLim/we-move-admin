@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
 import { ThemeProvider } from "@/lib/theme-provider";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/auth/protected-route";
+import { Toaster } from "@/components/ui/sonner";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
@@ -14,6 +16,7 @@ export function App() {
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <Router>
         <AuthProvider>
+          <Toaster position="top-right" expand={false} richColors />
           <Routes>
             {/* Protected Routes */}
             <Route

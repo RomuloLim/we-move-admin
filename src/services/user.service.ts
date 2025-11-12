@@ -1,11 +1,4 @@
 import api from '@/lib/axios';
-import type {
-    UserData,
-    UserFilters,
-    UserListResponse,
-    UserFormData,
-    UserCreateResponse,
-} from '@/@types';
 
 export const userService = {
     async getAll(filters?: UserFilters): Promise<UserListResponse> {
@@ -23,13 +16,18 @@ export const userService = {
         return response.data;
     },
 
-    async getById(id: number): Promise<UserData> {
-        const response = await api.get<{ data: UserData }>(`/users/${id}`);
+    async getById(id: number): Promise<User> {
+        const response = await api.get<{ data: User }>(`api/v1/users/${id}`);
         return response.data.data;
     },
 
     async create(data: UserFormData): Promise<UserCreateResponse> {
         const response = await api.post<UserCreateResponse>('api/v1/users', data);
+        return response.data;
+    },
+
+    async update(id: number, data: UserFormData): Promise<UserUpdateResponse> {
+        const response = await api.put<UserUpdateResponse>(`api/v1/users/${id}`, data);
         return response.data;
     },
 };

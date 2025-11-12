@@ -1,17 +1,21 @@
-export type UserType = 'super-admin' | 'admin' | 'driver' | 'passenger';
+type UserType = 'super-admin' | 'admin' | 'driver' | 'passenger';
 
-export type User = {
+type User = {
     id: number;
     name: string;
     email: string;
-    user_type: UserType;
-    user_type_label: string;
     email_verified_at: string | null;
+    cpf: string;
+    rg: string;
+    phone_contact: string;
+    user_type: 'admin' | 'driver';
+    user_type_label: string;
     created_at: string;
     updated_at: string;
+    profile_picture_url?: string;
 };
 
-export type UserFormData = {
+type UserFormData = {
     name: string;
     email: string;
     cpf: string;
@@ -22,14 +26,14 @@ export type UserFormData = {
     user_type: UserType;
 };
 
-export type UserFilters = {
+type UserFilters = {
     page?: number;
     per_page?: number;
     search?: string;
     user_type?: UserType;
 };
 
-export type UserListResponse = {
+type UserListResponse = {
     data: User[];
     links: {
         first: string;
@@ -54,7 +58,12 @@ export type UserListResponse = {
     };
 };
 
-export type UserCreateResponse = {
+type UserCreateResponse = {
+    message: string;
+    data: User;
+};
+
+type UserUpdateResponse = {
     message: string;
     data: User;
 };

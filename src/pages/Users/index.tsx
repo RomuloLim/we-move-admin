@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Plus, Pencil } from 'lucide-react';
 
 import { userService } from '@/services/user.service';
-import type { UserData, UserFilters, UserType } from '@/@types';
 import { AdminLayout } from '@/components/layout';
 import { Button } from '@/components/Button';
 import { UserFormModal } from '@/components/Users/UserFormModal';
@@ -17,7 +16,7 @@ import {
 } from '@/components/common';
 
 export default function UserList() {
-    const [users, setUsers] = useState<UserData[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [filters, setFilters] = useState<UserFilters>({
@@ -70,7 +69,6 @@ export default function UserList() {
     }
 
     function handleOpenEditModal(id: number) {
-        alert('A funcionalidade de edição ainda não foi implementada no backend.');
         setEditingUserId(id);
         setIsFormModalOpen(true);
     }

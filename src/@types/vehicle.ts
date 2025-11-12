@@ -1,4 +1,4 @@
-export type Vehicle = {
+type Vehicle = {
     id: number;
     license_plate: string;
     brand: string;
@@ -11,13 +11,13 @@ export type Vehicle = {
     updated_at: string;
 };
 
-export type VehicleFormData = {
+type VehicleFormData = {
     license_plate: string;
     model: string;
     capacity: number;
 };
 
-export type VehicleListResponse = {
+type VehicleListResponse = {
     data: Vehicle[];
     meta?: {
         current_page: number;
@@ -29,11 +29,11 @@ export type VehicleListResponse = {
     };
 };
 
-export type VehicleResponse = {
+type VehicleResponse = {
     data: Vehicle;
 };
 
-export type DefaultFilters = {
+type DefaultFilters = {
     per_page?: number;
     page?: number;
     search?: string;

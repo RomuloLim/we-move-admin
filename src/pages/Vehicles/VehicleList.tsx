@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { vehicleService } from '@/services/vehicle.service';
-import type { Vehicle, DefaultFilters } from '@/@types';
 import { AdminLayout } from '@/components/layout';
 import { Button } from '@/components/Button';
 import { VehicleFormModal } from '@/components/Vehicles/VehicleFormModal';
@@ -62,10 +62,15 @@ export default function VehicleList() {
 
         try {
             await vehicleService.delete(id);
+            toast.success('Veículo excluído!', {
+                description: 'O veículo foi excluído com sucesso.',
+            });
             loadVehicles();
         } catch (err) {
-            alert('Erro ao excluir veículo. Tente novamente.');
             console.error('Error deleting vehicle:', err);
+            toast.error('Erro ao excluir veículo', {
+                description: 'Não foi possível excluir o veículo. Tente novamente.',
+            });
         }
     }
 

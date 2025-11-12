@@ -1,10 +1,4 @@
 import api from '@/lib/axios';
-import type {
-    VehicleFormData,
-    VehicleListResponse,
-    VehicleResponse,
-    DefaultFilters,
-} from '@/@types';
 
 api.defaults.withCredentials = true;
 api.defaults.withXSRFToken = true;
