@@ -6,6 +6,7 @@ import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import VehicleList from "@/pages/Vehicles/VehicleList";
+import UserList from "@/pages/Users";
 import { ComponentShowcase } from "./components/component-showcase";
 
 export function App() {
@@ -38,6 +39,16 @@ export function App() {
               element={
                 <ProtectedRoute>
                   <VehicleList />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* User Routes */}
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute>
+                  <UserList />
                 </ProtectedRoute>
               }
             />

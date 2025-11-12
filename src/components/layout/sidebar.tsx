@@ -90,6 +90,11 @@ const menuItems: MenuItem[] = [
         ],
     },
     {
+        title: "Usuários",
+        icon: User,
+        href: "/users",
+    },
+    {
         title: "Relatórios",
         icon: BarChart3,
         href: "/reports",

@@ -33,9 +33,8 @@ export type VehicleResponse = {
     data: Vehicle;
 };
 
-export type VehicleFilters = {
+export type DefaultFilters = {
     per_page?: number;
     page?: number;
-    status?: Vehicle['status'];
     search?: string;
 };

@@ -11,5 +11,14 @@ export type {
     VehicleFormData,
     VehicleListResponse,
     VehicleResponse,
-    VehicleFilters,
+    DefaultFilters,
 } from './vehicle';
+
+export type {
+    User as UserData,
+    UserType,
+    UserFormData,
+    UserFilters,
+    UserListResponse,
+    UserCreateResponse,
+} from './user';

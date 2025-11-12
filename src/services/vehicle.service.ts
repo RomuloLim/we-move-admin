@@ -3,14 +3,14 @@ import type {
     VehicleFormData,
     VehicleListResponse,
     VehicleResponse,
-    VehicleFilters,
+    DefaultFilters,
 } from '@/@types';
 
 api.defaults.withCredentials = true;
 api.defaults.withXSRFToken = true;
 
 export const vehicleService = {
-    async getAll(filters?: VehicleFilters): Promise<VehicleListResponse> {
+    async getAll(filters?: DefaultFilters): Promise<VehicleListResponse> {
         const params = new URLSearchParams();
 
         if (filters?.per_page) {
@@ -18,9 +18,6 @@ export const vehicleService = {
         }
         if (filters?.page) {
             params.append('page', filters.page.toString());
-        }
-        if (filters?.status) {
-            params.append('status', filters.status);
         }
         if (filters?.search) {
             params.append('search', filters.search);

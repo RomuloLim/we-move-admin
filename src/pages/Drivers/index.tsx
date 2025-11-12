@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 
 import { vehicleService } from '@/services/vehicle.service';
-import type { Vehicle, DefaultFilters } from '@/@types';
+import type { DefaultFilters, Vehicle } from '@/@types';
 import { AdminLayout } from '@/components/layout';
 import { Button } from '@/components/Button';
 import { VehicleFormModal } from '@/components/Vehicles/VehicleFormModal';
@@ -15,8 +15,8 @@ import {
     type PaginationMeta
 } from '@/components/common';
 
-export default function VehicleList() {
-    const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+export default function DriversPage() {
+    const [drivers, setDrivers] = useState<Vehicle[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [filters, setFilters] = useState<DefaultFilters>({
@@ -29,19 +29,19 @@ export default function VehicleList() {
     const [editingVehicleId, setEditingVehicleId] = useState<number | undefined>(undefined);
 
     useEffect(() => {
-        loadVehicles();
+        loadDrivers();
     }, [filters]);
 
-    async function loadVehicles() {
+    async function loadDrivers() {
         try {
             setLoading(true);
             setError(null);
             const response = await vehicleService.getAll(filters);
-            setVehicles(response.data);
+            setDrivers(response.data);
             setPagination(response.meta);
         } catch (err) {
-            setError('Erro ao carregar veículos. Tente novamente.');
-            console.error('Error loading vehicles:', err);
+            setError('Erro ao carregar motoristas. Tente novamente.');
+            console.error('Error loading drivers:', err);
         } finally {
             setLoading(false);
         }
@@ -62,7 +62,7 @@ export default function VehicleList() {
 
         try {
             await vehicleService.delete(id);
-            loadVehicles();
+            loadDrivers();
         } catch (err) {
             alert('Erro ao excluir veículo. Tente novamente.');
             console.error('Error deleting vehicle:', err);
@@ -80,7 +80,7 @@ export default function VehicleList() {
     }
 
     function handleFormSuccess() {
-        loadVehicles();
+        loadDrivers();
     }
 
     function handlePageChange(page: number) {
@@ -98,8 +98,8 @@ export default function VehicleList() {
         }));
     }
 
-    const hasData = !loading && !error && vehicles.length > 0;
-    const isEmpty = !loading && !error && vehicles.length === 0;
+    const hasData = !loading && !error && drivers.length > 0;
+    const isEmpty = !loading && !error && drivers.length === 0;
 
     return (
         <AdminLayout>
@@ -151,33 +151,33 @@ export default function VehicleList() {
                         <DataTable.Head className="text-right">Ações</DataTable.Head>
                     </DataTable.Header>
                     <DataTable.Body>
-                        {vehicles.map((vehicle, index) => (
-                            <DataTable.Row key={vehicle.id}>
+                        {drivers.map((driver, index) => (
+                            <DataTable.Row key={driver.id}>
                                 <DataTable.Cell className="font-medium">
                                     {pagination ? pagination.from + index : index + 1}
                                 </DataTable.Cell>
                                 <DataTable.Cell className="font-medium">
-                                    {vehicle.license_plate}
+                                    {driver.license_plate}
                                 </DataTable.Cell>
                                 <DataTable.Cell>
-                                    {vehicle.model}
+                                    {driver.model}
                                 </DataTable.Cell>
                                 <DataTable.Cell className="text-right">
-                                    {vehicle.capacity} Passageiros
+                                    {driver.capacity} Passageiros
                                 </DataTable.Cell>
                                 <DataTable.Cell className="text-right">
                                     <div className="space-x-2">
                                         <Button
                                             variant="secondary"
                                             size="icon-md"
-                                            onClick={() => handleOpenEditModal(vehicle.id)}
+                                            onClick={() => handleOpenEditModal(driver.id)}
                                         >
                                             <Pencil className="w-5 h-5" />
                                         </Button>
                                         <Button
                                             variant="secondary"
                                             size="icon-md"
-                                            onClick={() => handleDelete(vehicle.id)}
+                                            onClick={() => handleDelete(driver.id)}
                                         >
                                             <Trash2 className="w-5 h-5" />
                                         </Button>
