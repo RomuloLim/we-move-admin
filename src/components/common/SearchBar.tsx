@@ -13,6 +13,7 @@ type SearchBarProps = {
     perPage?: number;
     onPerPageChange?: (value: number) => void;
     perPageOptions?: SelectOption[];
+    customElements?: React.ReactNode;
 };
 
 const DEFAULT_PER_PAGE_OPTIONS: SelectOption[] = [
@@ -31,6 +32,7 @@ export function SearchBar({
     perPage,
     onPerPageChange,
     perPageOptions = DEFAULT_PER_PAGE_OPTIONS,
+    customElements,
 }: SearchBarProps) {
     function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
         if (e.key === 'Enter') {
@@ -52,6 +54,9 @@ export function SearchBar({
                         <Search className="w-4 h-4" />
                     </Button>
                 </div>
+
+                {customElements}
+
                 {perPage !== undefined && onPerPageChange && (
                     <div className="flex items-center gap-2">
                         <label htmlFor="per-page" className="text-sm text-foreground whitespace-nowrap">

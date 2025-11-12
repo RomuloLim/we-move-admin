@@ -1,5 +1,4 @@
 import api, { getCsrfCookie } from '@/lib/axios';
-import type { LoginCredentials, LoginResponse } from '@/@types';
 
 api.defaults.withCredentials = true;
 api.defaults.withXSRFToken = true;

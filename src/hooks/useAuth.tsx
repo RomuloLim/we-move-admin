@@ -7,11 +7,6 @@ import {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '@/services/auth.service';
-import type {
-    User,
-    LoginCredentials,
-    AuthContextType,
-} from '@/@types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
