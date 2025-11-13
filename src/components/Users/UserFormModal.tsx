@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -12,6 +15,7 @@ import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { CustomSelect, type SelectOption } from '@/components/Select';
 import { userService } from '@/services/user.service';
+import { UserType, userTypeLabels } from '@/enums/userType';
 
 type UserFormModalProps = {
     open: boolean;
@@ -21,26 +25,63 @@ type UserFormModalProps = {
 };
 
 const userTypeOptions: SelectOption[] = [
-    { value: 'super-admin', label: 'Super Administrador' },
-    { value: 'admin', label: 'Administrador' },
-    { value: 'driver', label: 'Motorista' },
-    { value: 'student', label: 'Estudante' },
+    { value: UserType.SUPER_ADMIN, label: userTypeLabels[UserType.SUPER_ADMIN] },
+    { value: UserType.ADMIN, label: userTypeLabels[UserType.ADMIN] },
+    { value: UserType.DRIVER, label: userTypeLabels[UserType.DRIVER] },
+    { value: UserType.STUDENT, label: userTypeLabels[UserType.STUDENT] },
 ];
+
+const createUserSchema = z.object({
+    name: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
+    email: z.string().email('E-mail inválido'),
+    cpf: z.string().min(11, 'CPF inválido'),
+    rg: z.string().min(1, 'RG é obrigatório'),
+    phone_contact: z.string().min(10, 'Telefone inválido'),
+    profile_picture_url: z.string().url('URL inválida').optional().or(z.literal('')),
+    password: z.string().min(8, 'Senha deve ter pelo menos 8 caracteres'),
+    user_type: z.nativeEnum(UserType),
+});
+
+const editUserSchema = z.object({
+    name: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres').optional(),
+    email: z.string().email('E-mail inválido').optional(),
+    cpf: z.string().min(11, 'CPF inválido').optional(),
+    rg: z.string().min(1, 'RG é obrigatório').optional(),
+    phone_contact: z.string().min(10, 'Telefone inválido').optional(),
+    profile_picture_url: z.string().url('URL inválida').optional().or(z.literal('')),
+    password: z.string().min(8, 'Senha deve ter pelo menos 8 caracteres').optional().or(z.literal('')),
+    user_type: z.nativeEnum(UserType).optional(),
+});
+
+type CreateUserFormData = z.infer<typeof createUserSchema>;
+type EditUserFormData = z.infer<typeof editUserSchema>;
 
 export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFormModalProps) {
     const [loading, setLoading] = useState(false);
-    const [formData, setFormData] = useState<UserFormData>({
-        name: '',
-        email: '',
-        cpf: '',
-        rg: '',
-        phone_contact: '',
-        profile_picture_url: '',
-        password: '',
-        user_type: 'student' as UserType,
+    const isEditing = !!userId;
+
+    const {
+        register,
+        handleSubmit,
+        reset,
+        setValue,
+        watch,
+        formState: { errors, dirtyFields },
+    } = useForm<CreateUserFormData | EditUserFormData>({
+        resolver: zodResolver(isEditing ? editUserSchema : createUserSchema),
+        defaultValues: {
+            name: '',
+            email: '',
+            cpf: '',
+            rg: '',
+            phone_contact: '',
+            profile_picture_url: '',
+            password: '',
+            user_type: UserType.DRIVER,
+        },
     });
 
-    const isEditing = !!userId;
+    const userTypeValue = watch('user_type');
 
     useEffect(() => {
         if (open && userId) {
@@ -54,16 +95,18 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
         try {
             setLoading(true);
             const user = await userService.getById(id);
-            setFormData({
+            const userData = {
                 name: user.name,
                 email: user.email,
                 cpf: user.cpf,
                 rg: user.rg,
                 phone_contact: user.phone_contact,
-                profile_picture_url: user.profile_picture_url,
+                profile_picture_url: user.profile_picture_url || '',
                 password: '',
-                user_type: user.user_type,
-            });
+                user_type: user.user_type as UserType,
+            };
+
+            reset(userData);
         } catch (err) {
             console.error('Error loading user:', err);
             toast.error('Erro ao carregar usuário', {
@@ -75,7 +118,7 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
     }
 
     function resetForm() {
-        setFormData({
+        reset({
             name: '',
             email: '',
             cpf: '',
@@ -83,54 +126,39 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
             phone_contact: '',
             profile_picture_url: '',
             password: '',
-            user_type: 'student',
+            user_type: UserType.DRIVER,
         });
     }
 
-    async function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
-
-        // Validação para criação
-        if (!isEditing) {
-            if (!formData.name || !formData.email || !formData.cpf || !formData.rg ||
-                !formData.phone_contact || !formData.password) {
-                toast.error('Campos obrigatórios', {
-                    description: 'Preencha todos os campos obrigatórios para continuar.',
-                });
-                return;
-            }
-        }
-
+    async function handleFormSubmit(data: CreateUserFormData | EditUserFormData) {
         try {
             setLoading(true);
 
             if (isEditing && userId) {
-                // Preparar dados para edição (apenas campos preenchidos)
-                const updateData = {} as UserFormData;
+                const updateData: Partial<UserFormData> = {};
 
-                if (formData.name) updateData.name = formData.name;
-                if (formData.email) updateData.email = formData.email;
-                if (formData.cpf) updateData.cpf = formData.cpf;
-                if (formData.rg) updateData.rg = formData.rg;
-                if (formData.phone_contact) updateData.phone_contact = formData.phone_contact;
-                if (formData.profile_picture_url) updateData.profile_picture_url = formData.profile_picture_url;
-                if (formData.password) updateData.password = formData.password;
-                if (formData.user_type) updateData.user_type = formData.user_type;
+                if (dirtyFields.name && data.name) updateData.name = data.name;
+                if (dirtyFields.email && data.email) updateData.email = data.email;
+                if (dirtyFields.cpf && data.cpf) updateData.cpf = data.cpf;
+                if (dirtyFields.rg && data.rg) updateData.rg = data.rg;
+                if (dirtyFields.phone_contact && data.phone_contact) updateData.phone_contact = data.phone_contact;
+                if (dirtyFields.profile_picture_url && data.profile_picture_url) updateData.profile_picture_url = data.profile_picture_url;
+                if (dirtyFields.password && data.password) updateData.password = data.password;
+                if (dirtyFields.user_type && data.user_type) updateData.user_type = data.user_type;
 
-                await userService.update(userId, updateData);
+                await userService.update(userId, updateData as UserFormData);
                 toast.success('Usuário atualizado!', {
                     description: 'O usuário foi atualizado com sucesso.',
                 });
-                onSuccess();
-                onOpenChange(false);
             } else {
-                await userService.create(formData as UserFormData);
+                await userService.create(data as UserFormData);
                 toast.success('Usuário criado!', {
                     description: 'O usuário foi criado com sucesso.',
                 });
-                onSuccess();
-                onOpenChange(false);
             }
+
+            onSuccess();
+            onOpenChange(false);
         } catch (err: any) {
             console.error('Error saving user:', err);
             const errorMessage = err.response?.data?.message || 'Não foi possível salvar o usuário. Tente novamente.';
@@ -142,11 +170,8 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
         }
     }
 
-    function handleChange(field: keyof UserFormData, value: string) {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value,
-        }));
+    function handleUserTypeChange(value: string) {
+        setValue('user_type', value as UserType);
     }
 
     return (
@@ -158,7 +183,7 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
                     </DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label htmlFor="name" className="block text-sm font-medium mb-1">
@@ -166,10 +191,9 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
                             </label>
                             <Input
                                 id="name"
-                                value={formData.name || ''}
-                                onChange={(e) => handleChange('name', e.target.value)}
                                 placeholder="Nome completo"
-                                required={!isEditing}
+                                {...register('name')}
+                                error={errors.name?.message}
                             />
                         </div>
 
@@ -180,10 +204,9 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
                             <Input
                                 id="email"
                                 type="email"
-                                value={formData.email || ''}
-                                onChange={(e) => handleChange('email', e.target.value)}
                                 placeholder="email@example.com"
-                                required={!isEditing}
+                                {...register('email')}
+                                error={errors.email?.message}
                             />
                         </div>
 
@@ -193,10 +216,9 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
                             </label>
                             <Input
                                 id="cpf"
-                                value={formData.cpf || ''}
-                                onChange={(e) => handleChange('cpf', e.target.value)}
                                 placeholder="000.000.000-00"
-                                required={!isEditing}
+                                {...register('cpf')}
+                                error={errors.cpf?.message}
                             />
                         </div>
 
@@ -206,10 +228,9 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
                             </label>
                             <Input
                                 id="rg"
-                                value={formData.rg || ''}
-                                onChange={(e) => handleChange('rg', e.target.value)}
                                 placeholder="00.000.000-0"
-                                required={!isEditing}
+                                {...register('rg')}
+                                error={errors.rg?.message}
                             />
                         </div>
 
@@ -219,10 +240,9 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
                             </label>
                             <Input
                                 id="phone_contact"
-                                value={formData.phone_contact || ''}
-                                onChange={(e) => handleChange('phone_contact', e.target.value)}
                                 placeholder="(00) 00000-0000"
-                                required={!isEditing}
+                                {...register('phone_contact')}
+                                error={errors.phone_contact?.message}
                             />
                         </div>
 
@@ -232,10 +252,13 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
                             </label>
                             <CustomSelect
                                 options={userTypeOptions}
-                                value={formData.user_type}
-                                onChange={(value) => handleChange('user_type', value as UserType)}
+                                value={userTypeValue}
+                                onChange={handleUserTypeChange}
                                 placeholder="Selecione o tipo"
                             />
+                            {errors.user_type && (
+                                <p className="text-sm text-red-500 mt-1">{errors.user_type.message}</p>
+                            )}
                         </div>
 
                         <div className="md:col-span-2">
@@ -244,9 +267,9 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
                             </label>
                             <Input
                                 id="profile_picture_url"
-                                value={formData.profile_picture_url || ''}
-                                onChange={(e) => handleChange('profile_picture_url', e.target.value)}
                                 placeholder="https://exemplo.com/foto.jpg"
+                                {...register('profile_picture_url')}
+                                error={errors.profile_picture_url?.message}
                             />
                         </div>
 
@@ -257,11 +280,9 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
                             <Input
                                 id="password"
                                 type="password"
-                                value={formData.password || ''}
-                                onChange={(e) => handleChange('password', e.target.value)}
                                 placeholder={isEditing ? "Deixe em branco para manter a senha atual" : "Mínimo 8 caracteres"}
-                                required={!isEditing}
-                                minLength={8}
+                                {...register('password')}
+                                error={errors.password?.message}
                             />
                         </div>
                     </div>

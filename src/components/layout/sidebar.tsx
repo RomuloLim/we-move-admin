@@ -53,25 +53,14 @@ const menuItems: MenuItem[] = [
         href: "/requests",
     },
     {
-        title: "Frota",
-        icon: Truck,
+        title: "Rotas",
+        icon: Route,
         subItems: [
-            {
-                title: "Motoristas",
-                icon: User,
-                href: "/drivers",
-            },
             {
                 title: "Veículos",
                 icon: Car,
                 href: "/vehicles",
             },
-        ],
-    },
-    {
-        title: "Rotas",
-        icon: Route,
-        subItems: [
             {
                 title: "Universidades",
                 icon: Building2,

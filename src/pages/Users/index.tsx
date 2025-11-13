@@ -140,7 +140,7 @@ export default function UserList() {
                             <div className="flex items-center gap-4">
                                 <CustomSelect
                                     options={userTypeOptions}
-                                    value={filters.user_type || 'all'}
+                                    value={filters.type || 'all'}
                                     onChange={handleUserTypeChange}
                                     placeholder="Selecione um tipo"
                                     className="w-[200px]"
@@ -182,7 +182,7 @@ export default function UserList() {
                                 <DataTable.Cell className="font-medium">
                                     {pagination ? pagination.from + index : index + 1}
                                 </DataTable.Cell>
-                                <DataTable.Cell className="font-medium text-red-500 dark:text-blue-400">
+                                <DataTable.Cell className="font-medium">
                                     {user.name}
                                 </DataTable.Cell>
                                 <DataTable.Cell>
