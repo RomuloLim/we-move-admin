@@ -22,7 +22,7 @@ type InstitutionFormModalProps = {
     onSuccess: () => void;
 };
 
-const createInstitutionSchema = z.object({
+const institutionSchema = z.object({
     name: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
     address: z.string().min(5, 'Endereço deve ter pelo menos 5 caracteres'),
     city: z.string().min(2, 'Cidade é obrigatória'),
@@ -33,19 +33,7 @@ const createInstitutionSchema = z.object({
     website: z.string().url('URL inválida').optional().or(z.literal('')),
 });
 
-const editInstitutionSchema = z.object({
-    name: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres').optional(),
-    address: z.string().min(5, 'Endereço deve ter pelo menos 5 caracteres').optional(),
-    city: z.string().min(2, 'Cidade é obrigatória').optional(),
-    state: z.string().min(2, 'Estado é obrigatório').optional(),
-    zip_code: z.string().min(8, 'CEP inválido').optional(),
-    phone: z.string().min(10, 'Telefone inválido').optional(),
-    email: z.string().email('E-mail inválido').optional(),
-    website: z.string().url('URL inválida').optional().or(z.literal('')),
-});
-
-type CreateInstitutionFormData = z.infer<typeof createInstitutionSchema>;
-type EditInstitutionFormData = z.infer<typeof editInstitutionSchema>;
+type InstitutionFormData = z.infer<typeof institutionSchema>;
 
 export function InstitutionFormModal({ open, onOpenChange, institutionId, onSuccess }: InstitutionFormModalProps) {
     const [loading, setLoading] = useState(false);
@@ -55,9 +43,9 @@ export function InstitutionFormModal({ open, onOpenChange, institutionId, onSucc
         register,
         handleSubmit,
         reset,
-        formState: { errors, dirtyFields },
-    } = useForm<CreateInstitutionFormData | EditInstitutionFormData>({
-        resolver: zodResolver(isEditing ? editInstitutionSchema : createInstitutionSchema),
+        formState: { errors },
+    } = useForm<InstitutionFormData>({
+        resolver: zodResolver(institutionSchema),
         defaultValues: {
             name: '',
             address: '',
@@ -117,32 +105,14 @@ export function InstitutionFormModal({ open, onOpenChange, institutionId, onSucc
         });
     }
 
-    async function handleFormSubmit(data: CreateInstitutionFormData | EditInstitutionFormData) {
+    async function handleFormSubmit(data: InstitutionFormData) {
         try {
             setLoading(true);
+            const method = (isEditing && institutionId) ? 'update' : 'create';
 
-            if (isEditing && institutionId) {
-                const updateData: Partial<InstitutionFormData> = {};
+            await institutionService[method](data as InstitutionFormData, institutionId as number);
 
-                if (dirtyFields.name && data.name) updateData.name = data.name;
-                if (dirtyFields.address && data.address) updateData.address = data.address;
-                if (dirtyFields.city && data.city) updateData.city = data.city;
-                if (dirtyFields.state && data.state) updateData.state = data.state;
-                if (dirtyFields.zip_code && data.zip_code) updateData.zip_code = data.zip_code;
-                if (dirtyFields.phone && data.phone) updateData.phone = data.phone;
-                if (dirtyFields.email && data.email) updateData.email = data.email;
-                if (dirtyFields.website && data.website) updateData.website = data.website;
-
-                await institutionService.update(institutionId, updateData);
-                toast.success('Instituição atualizada!', {
-                    description: 'A instituição foi atualizada com sucesso.',
-                });
-            } else {
-                await institutionService.create(data as InstitutionFormData);
-                toast.success('Instituição criada!', {
-                    description: 'A instituição foi criada com sucesso.',
-                });
-            }
+            toast.success(`Instituição ${isEditing ? 'atualizada' : 'criada'} com sucesso!`);
 
             onSuccess();
             onOpenChange(false);
