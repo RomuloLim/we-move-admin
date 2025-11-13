@@ -26,7 +26,7 @@ export const institutionService = {
         return response.data;
     },
 
-    async update(id: number, data: Partial<InstitutionFormData>): Promise<InstitutionUpdateResponse> {
+    async update(data: Partial<InstitutionFormData>, id: number): Promise<InstitutionUpdateResponse> {
         const response = await api.put<InstitutionUpdateResponse>(`api/v1/institutions/${id}`, data);
         return response.data;
     },
