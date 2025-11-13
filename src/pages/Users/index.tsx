@@ -182,7 +182,7 @@ export default function UserList() {
                                 <DataTable.Cell className="font-medium">
                                     {pagination ? pagination.from + index : index + 1}
                                 </DataTable.Cell>
-                                <DataTable.Cell className="font-medium">
+                                <DataTable.Cell className="font-medium text-red-500 dark:text-blue-400">
                                     {user.name}
                                 </DataTable.Cell>
                                 <DataTable.Cell>
