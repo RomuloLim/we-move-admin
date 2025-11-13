@@ -9,6 +9,7 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import VehicleList from "@/pages/Vehicles/VehicleList";
 import UserList from "@/pages/Users";
+import InstitutionList from "@/pages/Institutions";
 import { ComponentShowcase } from "./components/component-showcase";
 
 export function App() {
@@ -52,6 +53,16 @@ export function App() {
               element={
                 <ProtectedRoute>
                   <UserList />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Institution Routes */}
+            <Route
+              path="/universities"
+              element={
+                <ProtectedRoute>
+                  <InstitutionList />
                 </ProtectedRoute>
               }
             />
