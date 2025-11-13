@@ -1,4 +1,4 @@
-type UserType = 'super-admin' | 'admin' | 'driver' | 'passenger';
+type UserType = 'super-admin' | 'admin' | 'driver' | 'student';
 
 type User = {
     id: number;
@@ -30,7 +30,7 @@ type UserFilters = {
     page?: number;
     per_page?: number;
     search?: string;
-    user_type?: UserType;
+    type?: UserType;
 };
 
 type UserListResponse = {
