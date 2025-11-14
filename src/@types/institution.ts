@@ -1,26 +1,26 @@
 type Institution = {
     id: number;
     name: string;
-    address: string;
+    acronym?: string;
+    street: string;
+    neighborhood: string;
+    number?: string;
     city: string;
     state: string;
     zip_code: string;
-    phone: string;
-    email: string;
-    website?: string;
     created_at: string;
     updated_at: string;
 };
 
 type InstitutionFormData = {
     name: string;
-    address: string;
+    street: string;
+    acronym?: string;
+    neighborhood: string;
+    number?: string;
     city: string;
     state: string;
     zip_code: string;
-    phone: string;
-    email: string;
-    website?: string;
 };
 
 type InstitutionFilters = {
