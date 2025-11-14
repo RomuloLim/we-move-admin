@@ -24,13 +24,13 @@ type InstitutionFormModalProps = {
 
 const institutionSchema = z.object({
     name: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
-    address: z.string().min(5, 'Endereço deve ter pelo menos 5 caracteres'),
+    acronym: z.string().max(5, 'Sigla deve ter no máximo 5 caracteres').optional(),
+    street: z.string().min(5, 'Endereço deve ter pelo menos 5 caracteres'),
+    number: z.string().optional(),
+    neighborhood: z.string().min(3, 'Bairro deve ter pelo menos 3 caracteres'),
     city: z.string().min(2, 'Cidade é obrigatória'),
     state: z.string().min(2, 'Estado é obrigatório'),
     zip_code: z.string().min(8, 'CEP inválido'),
-    phone: z.string().min(10, 'Telefone inválido'),
-    email: z.string().email('E-mail inválido'),
-    website: z.string().url('URL inválida').optional().or(z.literal('')),
 });
 
 type InstitutionFormData = z.infer<typeof institutionSchema>;
@@ -48,13 +48,13 @@ export function InstitutionFormModal({ open, onOpenChange, institutionId, onSucc
         resolver: zodResolver(institutionSchema),
         defaultValues: {
             name: '',
-            address: '',
+            acronym: '',
+            street: '',
+            number: '',
+            neighborhood: '',
             city: '',
             state: '',
             zip_code: '',
-            phone: '',
-            email: '',
-            website: '',
         },
     });
 
@@ -72,13 +72,13 @@ export function InstitutionFormModal({ open, onOpenChange, institutionId, onSucc
             const institution = await institutionService.getById(id);
             const institutionData = {
                 name: institution.name,
-                address: institution.address,
+                acronym: institution.acronym || '',
+                street: institution.street,
                 city: institution.city,
                 state: institution.state,
+                neighborhood: institution.neighborhood,
+                number: institution.number || '',
                 zip_code: institution.zip_code,
-                phone: institution.phone,
-                email: institution.email,
-                website: institution.website || '',
             };
 
             reset(institutionData);
@@ -95,13 +95,13 @@ export function InstitutionFormModal({ open, onOpenChange, institutionId, onSucc
     function resetForm() {
         reset({
             name: '',
-            address: '',
+            acronym: '',
+            street: '',
             city: '',
+            neighborhood: '',
+            number: '',
             state: '',
             zip_code: '',
-            phone: '',
-            email: '',
-            website: '',
         });
     }
 
@@ -137,8 +137,8 @@ export function InstitutionFormModal({ open, onOpenChange, institutionId, onSucc
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="md:col-span-2">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="md:col-span-4">
                             <label htmlFor="name" className="block text-sm font-medium mb-1">
                                 Nome {!isEditing && '*'}
                             </label>
@@ -150,19 +150,43 @@ export function InstitutionFormModal({ open, onOpenChange, institutionId, onSucc
                             />
                         </div>
 
-                        <div className="md:col-span-2">
-                            <label htmlFor="address" className="block text-sm font-medium mb-1">
-                                Endereço {!isEditing && '*'}
+                        <div className="md:col-span-3">
+                            <label htmlFor="street" className="block text-sm font-medium mb-1">
+                                Rua {!isEditing && '*'}
                             </label>
                             <Input
-                                id="address"
-                                placeholder="Rua, número, complemento"
-                                {...register('address')}
-                                error={errors.address?.message}
+                                id="street"
+                                placeholder="Rua"
+                                {...register('street')}
+                                error={errors.street?.message}
                             />
                         </div>
 
-                        <div>
+                        <div className="md:col-span-1">
+                            <label htmlFor="number" className="block text-sm font-medium mb-1">
+                                Número {!isEditing && '*'}
+                            </label>
+                            <Input
+                                id="number"
+                                placeholder="Número"
+                                {...register('number')}
+                                error={errors.number?.message}
+                            />
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label htmlFor="neighborhood" className="block text-sm font-medium mb-1">
+                                Bairro {!isEditing && '*'}
+                            </label>
+                            <Input
+                                id="neighborhood"
+                                placeholder="Bairro"
+                                {...register('neighborhood')}
+                                error={errors.neighborhood?.message}
+                            />
+                        </div>
+
+                        <div className='md:col-span-2'>
                             <label htmlFor="city" className="block text-sm font-medium mb-1">
                                 Cidade {!isEditing && '*'}
                             </label>
@@ -174,9 +198,9 @@ export function InstitutionFormModal({ open, onOpenChange, institutionId, onSucc
                             />
                         </div>
 
-                        <div>
+                        <div className='md:col-span-1'>
                             <label htmlFor="state" className="block text-sm font-medium mb-1">
-                                Estado {!isEditing && '*'}
+                                UF {!isEditing && '*'}
                             </label>
                             <Input
                                 id="state"
@@ -187,7 +211,7 @@ export function InstitutionFormModal({ open, onOpenChange, institutionId, onSucc
                             />
                         </div>
 
-                        <div>
+                        <div className='md:col-span-3'>
                             <label htmlFor="zip_code" className="block text-sm font-medium mb-1">
                                 CEP {!isEditing && '*'}
                             </label>
@@ -196,43 +220,6 @@ export function InstitutionFormModal({ open, onOpenChange, institutionId, onSucc
                                 placeholder="00000-000"
                                 {...register('zip_code')}
                                 error={errors.zip_code?.message}
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="phone" className="block text-sm font-medium mb-1">
-                                Telefone {!isEditing && '*'}
-                            </label>
-                            <Input
-                                id="phone"
-                                placeholder="(00) 00000-0000"
-                                {...register('phone')}
-                                error={errors.phone?.message}
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium mb-1">
-                                E-mail {!isEditing && '*'}
-                            </label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="contato@instituicao.edu.br"
-                                {...register('email')}
-                                error={errors.email?.message}
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="website" className="block text-sm font-medium mb-1">
-                                Website
-                            </label>
-                            <Input
-                                id="website"
-                                placeholder="https://www.instituicao.edu.br"
-                                {...register('website')}
-                                error={errors.website?.message}
                             />
                         </div>
                     </div>
