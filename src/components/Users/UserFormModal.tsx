@@ -37,7 +37,6 @@ const createUserSchema = z.object({
     cpf: z.string().min(11, 'CPF inválido'),
     rg: z.string().min(1, 'RG é obrigatório'),
     phone_contact: z.string().min(10, 'Telefone inválido'),
-    profile_picture_url: z.string().url('URL inválida').optional().or(z.literal('')),
     password: z.string().min(8, 'Senha deve ter pelo menos 8 caracteres'),
     user_type: z.nativeEnum(UserType),
 });
@@ -48,7 +47,6 @@ const editUserSchema = z.object({
     cpf: z.string().min(11, 'CPF inválido').optional(),
     rg: z.string().min(1, 'RG é obrigatório').optional(),
     phone_contact: z.string().min(10, 'Telefone inválido').optional(),
-    profile_picture_url: z.string().url('URL inválida').optional().or(z.literal('')),
     password: z.string().min(8, 'Senha deve ter pelo menos 8 caracteres').optional().or(z.literal('')),
     user_type: z.nativeEnum(UserType).optional(),
 });
@@ -75,7 +73,6 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
             cpf: '',
             rg: '',
             phone_contact: '',
-            profile_picture_url: '',
             password: '',
             user_type: UserType.DRIVER,
         },
@@ -101,7 +98,6 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
                 cpf: user.cpf,
                 rg: user.rg,
                 phone_contact: user.phone_contact,
-                profile_picture_url: user.profile_picture_url || '',
                 password: '',
                 user_type: user.user_type as UserType,
             };
@@ -124,7 +120,6 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
             cpf: '',
             rg: '',
             phone_contact: '',
-            profile_picture_url: '',
             password: '',
             user_type: UserType.DRIVER,
         });
@@ -142,7 +137,6 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
                 if (dirtyFields.cpf && data.cpf) updateData.cpf = data.cpf;
                 if (dirtyFields.rg && data.rg) updateData.rg = data.rg;
                 if (dirtyFields.phone_contact && data.phone_contact) updateData.phone_contact = data.phone_contact;
-                if (dirtyFields.profile_picture_url && data.profile_picture_url) updateData.profile_picture_url = data.profile_picture_url;
                 if (dirtyFields.password && data.password) updateData.password = data.password;
                 if (dirtyFields.user_type && data.user_type) updateData.user_type = data.user_type;
 
@@ -259,18 +253,6 @@ export function UserFormModal({ open, onOpenChange, userId, onSuccess }: UserFor
                             {errors.user_type && (
                                 <p className="text-sm text-red-500 mt-1">{errors.user_type.message}</p>
                             )}
-                        </div>
-
-                        <div className="md:col-span-2">
-                            <label htmlFor="profile_picture_url" className="block text-sm font-medium mb-1">
-                                URL da Foto de Perfil
-                            </label>
-                            <Input
-                                id="profile_picture_url"
-                                placeholder="https://exemplo.com/foto.jpg"
-                                {...register('profile_picture_url')}
-                                error={errors.profile_picture_url?.message}
-                            />
                         </div>
 
                         <div className="md:col-span-2">
