@@ -6,6 +6,7 @@ import { courseService } from '@/services/course.service';
 import { AdminLayout } from '@/components/layout';
 import { Button } from '@/components/Button';
 import { CourseFormModal } from '@/components/Courses/CourseFormModal';
+import { courseTypeLabels } from '@/enums/courseType';
 import {
     PageHeader,
     SearchBar,
@@ -104,6 +105,10 @@ export default function CourseList() {
         }));
     }
 
+    function getCourseTypeLabel(courseType: string): string {
+        return courseTypeLabels[courseType as keyof typeof courseTypeLabels] || courseType;
+    }
+
     const hasData = !loading && !error && courses.length > 0;
     const isEmpty = !loading && !error && courses.length === 0;
 
@@ -127,7 +132,7 @@ export default function CourseList() {
                         searchTerm={searchTerm}
                         onSearchChange={setSearchTerm}
                         onSearch={handleSearch}
-                        placeholder="Buscar por nome ou código..."
+                        placeholder="Buscar por nome..."
                         perPage={filters.per_page}
                         onPerPageChange={handlePerPageChange}
                     />
@@ -154,8 +159,7 @@ export default function CourseList() {
                     <DataTable.Header>
                         <DataTable.Head className="w-[100px]">#</DataTable.Head>
                         <DataTable.Head>Nome</DataTable.Head>
-                        <DataTable.Head>Código</DataTable.Head>
-                        <DataTable.Head>Duração</DataTable.Head>
+                        <DataTable.Head>Tipo</DataTable.Head>
                         <DataTable.Head>Descrição</DataTable.Head>
                         <DataTable.Head>Criado em</DataTable.Head>
                         <DataTable.Head className="text-right">Ações</DataTable.Head>
@@ -170,12 +174,9 @@ export default function CourseList() {
                                     {course.name}
                                 </DataTable.Cell>
                                 <DataTable.Cell>
-                                    {course.code}
+                                    {getCourseTypeLabel(course.course_type)}
                                 </DataTable.Cell>
-                                <DataTable.Cell>
-                                    {course.duration_semesters ? `${course.duration_semesters} semestres` : '-'}
-                                </DataTable.Cell>
-                                <DataTable.Cell>
+                                <DataTable.Cell className='truncate max-w-sm'>
                                     {course.description || '-'}
                                 </DataTable.Cell>
                                 <DataTable.Cell>

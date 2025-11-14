@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X } from 'lucide-react';
@@ -13,7 +13,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
+import { CustomSelect } from '@/components/Select';
 import { courseService } from '@/services/course.service';
+import { CourseType, courseTypeLabels, availableCourseTypes } from '@/enums/courseType';
+import { Textarea } from '../Textarea';
 
 type CourseFormModalProps = {
     open: boolean;
@@ -23,10 +26,9 @@ type CourseFormModalProps = {
 };
 
 const courseSchema = z.object({
-    name: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
-    code: z.string().min(2, 'Código deve ter pelo menos 2 caracteres'),
+    name: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres').max(255, 'Nome deve ter no máximo 255 caracteres'),
+    course_type: z.string().min(1, 'Tipo de curso é obrigatório'),
     description: z.string().optional(),
-    duration_semesters: z.coerce.number().int().positive('Duração deve ser um número positivo').optional(),
 });
 
 type CourseFormData = z.infer<typeof courseSchema>;
@@ -39,14 +41,14 @@ export function CourseFormModal({ open, onOpenChange, courseId, onSuccess }: Cou
         register,
         handleSubmit,
         reset,
+        control,
         formState: { errors },
     } = useForm<CourseFormData>({
         resolver: zodResolver(courseSchema),
         defaultValues: {
             name: '',
-            code: '',
+            course_type: '',
             description: '',
-            duration_semesters: undefined,
         },
     });
 
@@ -64,9 +66,8 @@ export function CourseFormModal({ open, onOpenChange, courseId, onSuccess }: Cou
             const course = await courseService.getById(id);
             const courseData = {
                 name: course.name,
-                code: course.code,
+                course_type: course.course_type,
                 description: course.description || '',
-                duration_semesters: course.duration_semesters,
             };
 
             reset(courseData);
@@ -83,16 +84,15 @@ export function CourseFormModal({ open, onOpenChange, courseId, onSuccess }: Cou
     function resetForm() {
         reset({
             name: '',
-            code: '',
+            course_type: '',
             description: '',
-            duration_semesters: undefined,
         });
     }
 
     async function handleFormSubmit(data: CourseFormData) {
         try {
             setLoading(true);
-            
+
             if (isEditing && courseId) {
                 await courseService.update(courseId, data);
             } else {
@@ -113,6 +113,11 @@ export function CourseFormModal({ open, onOpenChange, courseId, onSuccess }: Cou
             setLoading(false);
         }
     }
+
+    const courseTypeOptions = availableCourseTypes.map(type => ({
+        value: type,
+        label: courseTypeLabels[type],
+    }));
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -137,36 +142,33 @@ export function CourseFormModal({ open, onOpenChange, courseId, onSuccess }: Cou
                             />
                         </div>
 
-                        <div>
-                            <label htmlFor="code" className="block text-sm font-medium mb-1">
-                                Código *
+                        <div className="md:col-span-2">
+                            <label htmlFor="course_type" className="block text-sm font-medium mb-1">
+                                Tipo de Curso *
                             </label>
-                            <Input
-                                id="code"
-                                placeholder="Código do curso"
-                                {...register('code')}
-                                error={errors.code?.message}
+                            <Controller
+                                name="course_type"
+                                control={control}
+                                render={({ field }) => (
+                                    <CustomSelect
+                                        options={courseTypeOptions}
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        placeholder="Selecione o tipo de curso"
+                                        className="w-full"
+                                    />
+                                )}
                             />
-                        </div>
-
-                        <div>
-                            <label htmlFor="duration_semesters" className="block text-sm font-medium mb-1">
-                                Duração (semestres)
-                            </label>
-                            <Input
-                                id="duration_semesters"
-                                type="number"
-                                placeholder="Ex: 8"
-                                {...register('duration_semesters')}
-                                error={errors.duration_semesters?.message}
-                            />
+                            {errors.course_type && (
+                                <p className="text-sm text-red-600 mt-1">{errors.course_type.message}</p>
+                            )}
                         </div>
 
                         <div className="md:col-span-2">
                             <label htmlFor="description" className="block text-sm font-medium mb-1">
                                 Descrição
                             </label>
-                            <Input
+                            <Textarea
                                 id="description"
                                 placeholder="Descrição do curso"
                                 {...register('description')}
