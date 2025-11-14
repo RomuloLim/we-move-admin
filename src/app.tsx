@@ -10,6 +10,7 @@ import Register from "@/pages/Register";
 import VehicleList from "@/pages/Vehicles/VehicleList";
 import UserList from "@/pages/Users";
 import InstitutionList from "@/pages/Institutions";
+import CourseList from "@/pages/Courses";
 import { ComponentShowcase } from "./components/component-showcase";
 
 export function App() {
@@ -63,6 +64,16 @@ export function App() {
               element={
                 <ProtectedRoute>
                   <InstitutionList />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Course Routes */}
+            <Route
+              path="/courses"
+              element={
+                <ProtectedRoute>
+                  <CourseList />
                 </ProtectedRoute>
               }
             />

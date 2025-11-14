@@ -43,11 +43,6 @@ const menuItems: MenuItem[] = [
         href: "/",
     },
     {
-        title: "Trajetos",
-        icon: MapPinned,
-        href: "/routes",
-    },
-    {
         title: "Solicitações",
         icon: FileText,
         href: "/requests",
@@ -62,6 +57,11 @@ const menuItems: MenuItem[] = [
                 href: "/vehicles",
             },
             {
+                title: "Rotas",
+                icon: MapPinned,
+                href: "/stops",
+            },
+            {
                 title: "Universidades",
                 icon: Building2,
                 href: "/universities",
@@ -70,11 +70,6 @@ const menuItems: MenuItem[] = [
                 title: "Cursos",
                 icon: GraduationCap,
                 href: "/courses",
-            },
-            {
-                title: "Paradas",
-                icon: MapPinned,
-                href: "/stops",
             },
         ],
     },
