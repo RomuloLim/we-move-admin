@@ -45,7 +45,7 @@ const menuItems: MenuItem[] = [
     {
         title: "Solicitações",
         icon: FileText,
-        href: "/requests",
+        href: "/student-requisitions",
     },
     {
         title: "Rotas",
