@@ -12,7 +12,6 @@ import {
     EmptyState,
     DataTable,
     TablePagination,
-    type PaginationMeta
 } from '@/components/common';
 
 export default function InstitutionList() {
@@ -155,8 +154,6 @@ export default function InstitutionList() {
                         <DataTable.Head className="w-[100px]">#</DataTable.Head>
                         <DataTable.Head>Nome</DataTable.Head>
                         <DataTable.Head>Cidade/Estado</DataTable.Head>
-                        <DataTable.Head>E-mail</DataTable.Head>
-                        <DataTable.Head>Telefone</DataTable.Head>
                         <DataTable.Head>Criado em</DataTable.Head>
                         <DataTable.Head className="text-right">Ações</DataTable.Head>
                     </DataTable.Header>
@@ -171,12 +168,6 @@ export default function InstitutionList() {
                                 </DataTable.Cell>
                                 <DataTable.Cell>
                                     {institution.city}/{institution.state}
-                                </DataTable.Cell>
-                                <DataTable.Cell>
-                                    {institution.email}
-                                </DataTable.Cell>
-                                <DataTable.Cell>
-                                    {institution.phone}
                                 </DataTable.Cell>
                                 <DataTable.Cell>
                                     {new Date(institution.created_at).toLocaleDateString('pt-BR')}
