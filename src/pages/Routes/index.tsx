@@ -6,6 +6,7 @@ import { routeService } from '@/services/route.service';
 import type { Route, RouteFilters } from '@/@types/route';
 import { AdminLayout } from '@/components/layout';
 import { Button } from '@/components/Button';
+import { RouteFormModal } from '@/components/Routes/RouteFormModal';
 import {
     PageHeader,
     SearchBar,
@@ -25,6 +26,8 @@ export default function RouteList() {
     });
     const [pagination, setPagination] = useState<PaginationMeta>();
     const [searchTerm, setSearchTerm] = useState('');
+    const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+    const [editingRouteId, setEditingRouteId] = useState<number | undefined>(undefined);
 
     useEffect(() => {
         loadRoutes();
@@ -54,8 +57,8 @@ export default function RouteList() {
     }
 
     function handleOpenCreateModal() {
-        // TODO: Implementar criação de rota
-        console.log('Criar nova rota');
+        setEditingRouteId(undefined);
+        setIsFormModalOpen(true);
     }
 
     function handleView(id: number) {
@@ -64,8 +67,12 @@ export default function RouteList() {
     }
 
     function handleEdit(id: number) {
-        // TODO: Implementar edição de rota
-        console.log('Editar rota:', id);
+        setEditingRouteId(id);
+        setIsFormModalOpen(true);
+    }
+
+    function handleFormSuccess() {
+        loadRoutes();
     }
 
     async function handleDelete(id: number, name: string) {
@@ -179,10 +186,10 @@ export default function RouteList() {
                                     <span className="font-semibold">{route.stops_amount}</span>
                                 </DataTable.Cell>
                                 <DataTable.Cell>
-                                    <div className="font-medium truncate max-w-3xs">{route.first_stop.stop_name}</div>
+                                    <div className="font-medium truncate max-w-3xs">{route.first_stop?.stop_name}</div>
                                 </DataTable.Cell>
                                 <DataTable.Cell>
-                                    <div className="font-medium truncate max-w-3xs">{route.last_stop.stop_name}</div>
+                                    <div className="font-medium truncate max-w-3xs">{route.last_stop?.stop_name}</div>
                                 </DataTable.Cell>
                                 <DataTable.Cell>
                                     {new Date(route.created_at).toLocaleDateString('pt-BR')}
@@ -227,6 +234,14 @@ export default function RouteList() {
                         onPageChange={handlePageChange}
                     />
                 )}
+
+                {/* Form Modal */}
+                <RouteFormModal
+                    open={isFormModalOpen}
+                    onOpenChange={setIsFormModalOpen}
+                    routeId={editingRouteId}
+                    onSuccess={handleFormSuccess}
+                />
             </div>
         </AdminLayout>
     );
