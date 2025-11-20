@@ -1,8 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type RefObject } from 'react';
 import { MapPin, Loader2, X } from 'lucide-react';
 
 import { geocodingService, type LocationSuggestion } from '@/services/geocoding.service';
 import { Input } from '@/components/Input';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useOnClickOutside } from '@/hooks/useOnClickOutside';
 
 type LocationSearchProps = {
     value: string;
@@ -24,39 +26,23 @@ export function LocationSearch({
     const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
     const [loading, setLoading] = useState(false);
     const [showSuggestions, setShowSuggestions] = useState(false);
-    const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
 
-    // Fecha as sugestões ao clicar fora
+    const debouncedValue = useDebounce(value, 500);
+
+    useOnClickOutside(wrapperRef as RefObject<HTMLDivElement>, () => setShowSuggestions(false));
+
     useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
-                setShowSuggestions(false);
+        async function search() {
+            if (debouncedValue.trim().length < 3) {
+                setSuggestions([]);
+                setLoading(false);
+                return;
             }
-        }
 
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
-
-    // find suggestions based on input value
-    useEffect(() => {
-        if (searchTimeoutRef.current) {
-            clearTimeout(searchTimeoutRef.current);
-        }
-
-        if (value.trim().length < 3) {
-            setSuggestions([]);
-            setLoading(false);
-            return;
-        }
-
-        setLoading(true);
-        searchTimeoutRef.current = setTimeout(async () => {
+            setLoading(true);
             try {
-                const results = await geocodingService.searchLocations(value);
+                const results = await geocodingService.searchLocations(debouncedValue);
                 setSuggestions(results);
                 setShowSuggestions(true);
             } catch (error) {
@@ -65,18 +51,17 @@ export function LocationSearch({
             } finally {
                 setLoading(false);
             }
-        }, 500);
+        }
 
-        return () => {
-            if (searchTimeoutRef.current) {
-                clearTimeout(searchTimeoutRef.current);
-            }
-        };
-    }, [value]);
+        search();
+    }, [debouncedValue]);
 
     function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
         onChange(e.target.value);
-        setShowSuggestions(true);
+        // Only show suggestions if we have them, otherwise wait for debounce
+        if (suggestions.length > 0) {
+            setShowSuggestions(true);
+        }
     }
 
     function handleSelectSuggestion(suggestion: LocationSuggestion) {
@@ -172,7 +157,7 @@ export function LocationSearch({
             )}
 
             {/* Estado vazio */}
-            {showSuggestions && !loading && value.trim().length >= 3 && suggestions.length === 0 && (
+            {showSuggestions && !loading && debouncedValue.trim().length >= 3 && suggestions.length === 0 && (
                 <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
                     <div className="flex items-center gap-3 text-gray-500">
                         <MapPin className="w-4 h-4" />

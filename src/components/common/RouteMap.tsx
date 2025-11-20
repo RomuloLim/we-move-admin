@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -99,9 +99,9 @@ export function RouteMap({ stops, tempLocation, onMapClick, height = '600px' }: 
     const defaultZoom = 13;
 
     // Prepara os pontos da rota
-    const routePoints: [number, number][] = stops
+    const routePoints: [number, number][] = useMemo(() => stops
         .filter((stop) => stop.latitude && stop.longitude)
-        .map((stop) => [parseFloat(stop.latitude!), parseFloat(stop.longitude!)]);
+        .map((stop) => [parseFloat(stop.latitude!), parseFloat(stop.longitude!)]), [stops]);
 
     return (
         <div className="relative w-full rounded-lg overflow-hidden border border-gray-200" style={{ height }}>
