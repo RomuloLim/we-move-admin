@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Eye, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { routeService } from '@/services/route.service';
@@ -59,11 +59,6 @@ export default function RouteList() {
     function handleOpenCreateModal() {
         setEditingRouteId(undefined);
         setIsFormModalOpen(true);
-    }
-
-    function handleView(id: number) {
-        // TODO: Implementar visualização de rota
-        console.log('Visualizar rota:', id);
     }
 
     function handleEdit(id: number) {
@@ -196,6 +191,7 @@ export default function RouteList() {
                                 </DataTable.Cell>
                                 <DataTable.Cell className="text-right">
                                     <div className="flex justify-end gap-2">
+                                        {/* TODO: Implementar visualização de rota
                                         <Button
                                             variant="secondary"
                                             size="icon-md"
@@ -204,6 +200,7 @@ export default function RouteList() {
                                         >
                                             <Eye className="w-5 h-5" />
                                         </Button>
+                                        */}
                                         <Button
                                             variant="secondary"
                                             size="icon-md"

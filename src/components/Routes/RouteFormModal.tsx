@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Plus, Loader2 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Plus, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { routeService, stopService } from '@/services/route.service';
@@ -34,18 +37,20 @@ type StopItem = Stop & {
     isDeleting?: boolean;
 };
 
+const routeSchema = z.object({
+    route_name: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres').max(255, 'Nome deve ter no máximo 255 caracteres'),
+    description: z.string().optional(),
+});
+
+type RouteFormData = z.infer<typeof routeSchema>;
+
 export function RouteFormModal({
     open,
     onOpenChange,
     routeId,
     onSuccess,
 }: RouteFormModalProps) {
-    const [loading, setLoading] = useState(false);
     const [loadingRoute, setLoadingRoute] = useState(false);
-    const [formData, setFormData] = useState({
-        route_name: '',
-        description: '',
-    });
     const [stops, setStops] = useState<StopItem[]>([]);
     const [newStopName, setNewStopName] = useState('');
     const [newStopLatitude, setNewStopLatitude] = useState('');
@@ -60,6 +65,19 @@ export function RouteFormModal({
 
     const isEditMode = !!routeId;
 
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors, isSubmitting },
+    } = useForm<RouteFormData>({
+        resolver: zodResolver(routeSchema),
+        defaultValues: {
+            route_name: '',
+            description: '',
+        },
+    });
+
     useEffect(() => {
         if (open && routeId) {
             loadRoute(routeId);
@@ -72,7 +90,7 @@ export function RouteFormModal({
         try {
             setLoadingRoute(true);
             const route = await routeService.getById(id);
-            setFormData({
+            reset({
                 route_name: route.route_name,
                 description: route.description,
             });
@@ -89,7 +107,7 @@ export function RouteFormModal({
     }
 
     function resetForm() {
-        setFormData({
+        reset({
             route_name: '',
             description: '',
         });
@@ -101,33 +119,20 @@ export function RouteFormModal({
         setTempLocation(undefined);
     }
 
-    function handleInputChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value,
-        }));
-    }
-
-    async function handleSaveRoute() {
-        if (!formData.route_name.trim()) {
-            toast.error('Nome obrigatório', {
-                description: 'Digite um nome para a rota',
-            });
-            return;
-        }
-
+    async function handleSaveRoute(data: RouteFormData) {
         try {
-            setLoading(true);
             let route: Route;
 
             if (savedRouteId) {
-                route = await routeService.update(savedRouteId, formData);
+                route = await routeService.update(savedRouteId, data);
                 toast.success('Rota atualizada!', {
                     description: 'Os dados da rota foram atualizados.',
                 });
             } else {
-                route = await routeService.create(formData);
+                route = await routeService.create({
+                    route_name: data.route_name,
+                    description: data.description || '',
+                });
                 setSavedRouteId(route.id);
                 toast.success('Rota criada!', {
                     description: 'Agora você pode adicionar paradas.',
@@ -139,8 +144,6 @@ export function RouteFormModal({
             toast.error('Erro ao salvar rota', {
                 description: errorMessage,
             });
-        } finally {
-            setLoading(false);
         }
     }
 
@@ -268,7 +271,7 @@ export function RouteFormModal({
     }
 
     function handleClose() {
-        if (!loading && !addingStop) {
+        if (!isSubmitting && !addingStop) {
             onOpenChange(false);
             setTimeout(() => {
                 resetForm();
@@ -355,37 +358,33 @@ export function RouteFormModal({
                                         </span>
                                     </AccordionTrigger>
                                     <AccordionContent>
-                                        <div className="space-y-4">
+                                        <form onSubmit={handleSubmit(handleSaveRoute)} className="space-y-4">
                                             <Input
                                                 label="Nome da Rota"
-                                                name="route_name"
-                                                value={formData.route_name}
-                                                onChange={handleInputChange}
                                                 placeholder="Ex: Rota Central"
-                                                required
-                                                disabled={loading}
+                                                {...register('route_name')}
+                                                error={errors.route_name?.message}
+                                                disabled={isSubmitting}
                                             />
 
                                             <Textarea
                                                 label="Descrição"
-                                                name="description"
-                                                value={formData.description}
-                                                onChange={handleInputChange}
                                                 placeholder="Descreva a rota..."
+                                                {...register('description')}
+                                                error={errors.description?.message}
                                                 rows={3}
-                                                disabled={loading}
+                                                disabled={isSubmitting}
                                             />
 
                                             <Button
-                                                type="button"
-                                                onClick={handleSaveRoute}
-                                                disabled={loading || !formData.route_name.trim()}
+                                                type="submit"
+                                                disabled={isSubmitting}
                                                 className="w-full"
                                             >
-                                                {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                                                {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                                                 {savedRouteId ? 'Atualizar Rota' : 'Salvar Rota'}
                                             </Button>
-                                        </div>
+                                        </form>
                                     </AccordionContent>
                                 </AccordionItem>
 
@@ -531,14 +530,15 @@ export function RouteFormModal({
                             type="button"
                             variant="secondary"
                             onClick={handleClose}
-                            disabled={loading || addingStop}
+                            disabled={isSubmitting || addingStop}
                         >
+                            <X className="w-4 h-4 mr-2" />
                             Cancelar
                         </Button>
                         <Button
                             type="button"
                             onClick={handleFinish}
-                            disabled={loading || addingStop || !savedRouteId || stops.length === 0}
+                            disabled={isSubmitting || addingStop || !savedRouteId || stops.length === 0}
                         >
                             Concluir
                         </Button>
