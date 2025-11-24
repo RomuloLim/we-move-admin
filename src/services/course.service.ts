@@ -35,4 +35,9 @@ export const courseService = {
         const response = await api.delete<CourseDeleteResponse>(`api/v1/courses/${id}`);
         return response.data;
     },
+
+    async getCoursesOrderedByInstitution(institutionId: number): Promise<CourseListResponse> {
+        const response = await api.get<CourseListResponse>(`api/v1/courses/ordered-by-institution/${institutionId}`);
+        return response.data;
+    },
 };
