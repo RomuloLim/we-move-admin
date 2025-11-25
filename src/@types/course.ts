@@ -5,6 +5,7 @@ type Course = {
     description?: string;
     created_at: string;
     updated_at: string;
+    is_linked?: boolean;
 };
 
 type CourseResource = Course;

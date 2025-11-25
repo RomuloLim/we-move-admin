@@ -80,6 +80,15 @@ export function App() {
               }
             />
 
+            <Route
+              path="/student-requisitions"
+              element={
+                <ProtectedRoute>
+                  <StudentRequisitionList />
+                </ProtectedRoute>
+              }
+            />
+
             {/* Route Routes */}
             <Route
               path="/routes"

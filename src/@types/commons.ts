@@ -1,17 +1,17 @@
-type BasicFilter = {
+export type BasicFilter = {
     page?: number;
     per_page?: number;
     search?: string;
 };
 
-type PaginationLinks = {
+export type PaginationLinks = {
     first: string;
     last: string;
     prev: string | null;
     next: string | null;
 };
 
-type PaginationMeta = {
+export type PaginationMeta = {
     current_page: number;
     from: number;
     last_page: number;
@@ -27,8 +27,9 @@ type PaginationMeta = {
     total: number;
 };
 
-type PaginatedResponse<T> = {
+export type PaginatedResponse<T> = {
     data: T[];
     links: PaginationLinks;
     meta: PaginationMeta;
 };
+
