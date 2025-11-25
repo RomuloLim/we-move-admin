@@ -8,10 +8,13 @@ import {
     DataTable,
     TablePagination,
 } from '@/components/common';
+import { StudentRequisitionViewModal } from '@/components/StudentRequisitions/StudentRequisitionViewModal';
 
 import { Eye, Ban, CheckCircle } from "lucide-react";
 import { Button } from "@/components/Button";
 import { studentRequisitionService } from "@/services/studentRequisition.service";
+import { RequisitionStatus, requisitionStatusLabels, requisitionStatusColors, availableRequisitionStatuses } from '@/enums/requisitionStatus';
+import { atuationFormLabels, availableAtuationForms } from '@/enums/atuationForm';
 
 
 export default function StudentRequisitionList() {
@@ -24,6 +27,8 @@ export default function StudentRequisitionList() {
     });
     const [pagination, setPagination] = useState<PaginationMeta>();
     const [searchTerm, setSearchTerm] = useState('');
+    const [viewModalOpen, setViewModalOpen] = useState(false);
+    const [selectedRequisitionId, setSelectedRequisitionId] = useState<number | null>(null);
 
     const hasData = !loading && !error && requisitions.length > 0;
     const isEmpty = !loading && !error && requisitions.length === 0;
@@ -52,15 +57,18 @@ export default function StudentRequisitionList() {
     }
 
     function handleOpenViewModal(requisitionId: number) {
-        console.log('View', requisitionId);
+        setSelectedRequisitionId(requisitionId);
+        setViewModalOpen(true);
     }
 
     function handleApproveRequisition(requisitionId: number) {
         console.log('Approve', requisitionId);
+        // TODO: Implementar lógica de aprovação
     }
 
     function handleRejectRequisition(requisitionId: number) {
         console.log('Reject', requisitionId);
+        // TODO: Implementar lógica de rejeição
     }
 
     function handlePageChange(page: number) {
@@ -81,7 +89,7 @@ export default function StudentRequisitionList() {
     function handleStatusChange(status: string) {
         setFilters(prev => ({
             ...prev,
-            status: status || undefined,
+            status: (status as StudentRequisitionFilters['status']) || undefined,
             page: 1,
         }));
     }
@@ -89,7 +97,7 @@ export default function StudentRequisitionList() {
     function handleAtuationFormChange(atuationForm: string) {
         setFilters(prev => ({
             ...prev,
-            atuation_form: atuationForm || undefined,
+            atuation_form: (atuationForm as StudentRequisitionFilters['atuation_form']) || undefined,
             page: 1,
         }));
     }
@@ -130,10 +138,11 @@ export default function StudentRequisitionList() {
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                             >
                                 <option value="">Todos</option>
-                                <option value="pending">Pendente</option>
-                                <option value="approved">Aprovado</option>
-                                <option value="reproved">Reprovado</option>
-                                <option value="expired">Expirado</option>
+                                {availableRequisitionStatuses.map((status) => (
+                                    <option key={status} value={status}>
+                                        {requisitionStatusLabels[status]}
+                                    </option>
+                                ))}
                             </select>
                         </div>
 
@@ -147,11 +156,11 @@ export default function StudentRequisitionList() {
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                             >
                                 <option value="">Todos</option>
-                                <option value="student">Estudante</option>
-                                <option value="bolsist">Bolsista</option>
-                                <option value="teacher">Professor</option>
-                                <option value="prep_course">Curso Preparatório</option>
-                                <option value="other">Outro</option>
+                                {availableAtuationForms.map((form) => (
+                                    <option key={form} value={form}>
+                                        {atuationFormLabels[form]}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </div>
@@ -187,12 +196,8 @@ export default function StudentRequisitionList() {
                                     {requisition.student.user.name}
                                 </DataTable.Cell>
                                 <DataTable.Cell>
-                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
-                                        ${requisition.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                            requisition.status === 'approved' ? 'bg-green-100 text-green-800' :
-                                                'bg-red-100 text-red-800'}`}>
-                                        {requisition.status === 'pending' ? 'Pendente' :
-                                            requisition.status === 'approved' ? 'Aprovado' : 'Reprovado'}
+                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${requisitionStatusColors[requisition.status as RequisitionStatus]}`}>
+                                        {requisitionStatusLabels[requisition.status as RequisitionStatus] || requisition.status}
                                     </span>
                                 </DataTable.Cell>
                                 <DataTable.Cell>
@@ -242,6 +247,15 @@ export default function StudentRequisitionList() {
                         onPageChange={handlePageChange}
                     />
                 )}
+
+                {/* View Modal */}
+                <StudentRequisitionViewModal
+                    open={viewModalOpen}
+                    onOpenChange={setViewModalOpen}
+                    requisitionId={selectedRequisitionId}
+                    onApprove={handleApproveRequisition}
+                    onReject={handleRejectRequisition}
+                />
             </div>
         </AdminLayout>
     );

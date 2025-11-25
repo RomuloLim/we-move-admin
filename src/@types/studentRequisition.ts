@@ -1,3 +1,18 @@
+type StudentRequisitionDocument = {
+    id: number;
+    student_id: number;
+    type: 'residency_proof' | 'identification_document' | 'profile_picture' | 'enrollment_proof';
+    file_url: string;
+    full_url: string;
+    uploaded_at: string;
+    created_at: string;
+    updated_at: string;
+    pivot?: {
+        requisition_id: number;
+        document_id: number;
+    };
+}
+
 type StudentRequisition = {
     id: number;
     student_id: number;
@@ -16,6 +31,8 @@ type StudentRequisition = {
         id: number;
         institution_id: number;
         course_id: number;
+        institution: Institution;
+        course: Course;
         created_at: string | null;
         updated_at: string | null;
     };
@@ -30,6 +47,7 @@ type StudentRequisition = {
         updated_at: string;
         user: User;
     };
+    documents?: StudentRequisitionDocument[];
     created_at: string;
     updated_at: string;
 }

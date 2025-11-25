@@ -7,5 +7,10 @@ export const studentRequisitionService = {
         });
 
         return response.data;
+    },
+
+    async getById(id: number): Promise<StudentRequisition> {
+        const response = await api.get<{ data: StudentRequisition }>(`api/v1/requisitions/${id}`);
+        return response.data.data;
     }
 }
