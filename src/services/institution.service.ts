@@ -45,4 +45,15 @@ export const institutionService = {
         const response = await api.post<LinkCourseResponse>(`api/v1/institutions/${institutionId}/courses`, data);
         return response.data;
     },
+
+    async unlinkCourses(institutionId: number, courseIds: number[]): Promise<void> {
+        const params = new URLSearchParams();
+        courseIds.forEach(id => params.append('courses_ids[]', id.toString()));
+        await api.delete(`api/v1/institutions/${institutionId}/courses/unlink`, { params });
+    },
+
+    async getInstitutionsOrderedByCourse(courseId: number): Promise<InstitutionListResponse> {
+        const response = await api.get<InstitutionListResponse>(`api/v1/institutions/ordered-by-course/${courseId}`);
+        return response.data;
+    },
 };

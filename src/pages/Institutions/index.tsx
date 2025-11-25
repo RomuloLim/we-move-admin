@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Link } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { institutionService } from '@/services/institution.service';
 import { AdminLayout } from '@/components/layout';
 import { Button } from '@/components/Button';
 import { InstitutionFormModal } from '@/components/Institutions/InstitutionFormModal';
+import { LinkCoursesModal } from '@/components/Institutions/LinkCoursesModal';
 import {
     PageHeader,
     SearchBar,
@@ -26,6 +27,8 @@ export default function InstitutionList() {
     const [searchTerm, setSearchTerm] = useState('');
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
     const [editingInstitutionId, setEditingInstitutionId] = useState<number | undefined>(undefined);
+    const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+    const [linkingInstitutionId, setLinkingInstitutionId] = useState<number | undefined>(undefined);
 
     useEffect(() => {
         loadInstitutions();
@@ -62,6 +65,11 @@ export default function InstitutionList() {
     function handleOpenEditModal(id: number) {
         setEditingInstitutionId(id);
         setIsFormModalOpen(true);
+    }
+
+    function handleOpenLinkModal(id: number) {
+        setLinkingInstitutionId(id);
+        setIsLinkModalOpen(true);
     }
 
     async function handleDelete(id: number, name: string) {
@@ -154,6 +162,7 @@ export default function InstitutionList() {
                         <DataTable.Head className="w-[100px]">#</DataTable.Head>
                         <DataTable.Head>Nome</DataTable.Head>
                         <DataTable.Head>Cidade/Estado</DataTable.Head>
+                        <DataTable.Head>Bairro</DataTable.Head>
                         <DataTable.Head>Criado em</DataTable.Head>
                         <DataTable.Head className="text-right">Ações</DataTable.Head>
                     </DataTable.Header>
@@ -170,10 +179,21 @@ export default function InstitutionList() {
                                     {institution.city}/{institution.state}
                                 </DataTable.Cell>
                                 <DataTable.Cell>
+                                    {institution.neighborhood}
+                                </DataTable.Cell>
+                                <DataTable.Cell>
                                     {new Date(institution.created_at).toLocaleDateString('pt-BR')}
                                 </DataTable.Cell>
                                 <DataTable.Cell className="text-right">
                                     <div className="flex justify-end gap-2">
+                                        <Button
+                                            variant="secondary"
+                                            size="icon-md"
+                                            onClick={() => handleOpenLinkModal(institution.id)}
+                                            title="Vincular Cursos"
+                                        >
+                                            <Link className="w-5 h-5" />
+                                        </Button>
                                         <Button
                                             variant="secondary"
                                             size="icon-md"
@@ -210,6 +230,15 @@ export default function InstitutionList() {
                     institutionId={editingInstitutionId}
                     onSuccess={handleFormSuccess}
                 />
+
+                {linkingInstitutionId && (
+                    <LinkCoursesModal
+                        open={isLinkModalOpen}
+                        onOpenChange={setIsLinkModalOpen}
+                        institutionId={linkingInstitutionId}
+                        onSuccess={() => { }}
+                    />
+                )}
             </div>
         </AdminLayout>
     );

@@ -59,7 +59,7 @@ const menuItems: MenuItem[] = [
             {
                 title: "Rotas",
                 icon: MapPinned,
-                href: "/stops",
+                href: "/routes",
             },
             {
                 title: "Universidades",

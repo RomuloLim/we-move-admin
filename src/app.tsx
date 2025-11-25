@@ -11,6 +11,7 @@ import VehicleList from "@/pages/Vehicles/VehicleList";
 import UserList from "@/pages/Users";
 import InstitutionList from "@/pages/Institutions";
 import CourseList from "@/pages/Courses";
+import RouteList from "@/pages/Routes";
 import { ComponentShowcase } from "./components/component-showcase";
 import StudentRequisitionList from "./pages/StudentRequisitions";
 
@@ -84,6 +85,16 @@ export function App() {
               element={
                 <ProtectedRoute>
                   <StudentRequisitionList />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Route Routes */}
+            <Route
+              path="/routes"
+              element={
+                <ProtectedRoute>
+                  <RouteList />
                 </ProtectedRoute>
               }
             />

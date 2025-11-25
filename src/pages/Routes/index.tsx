@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Link } from 'lucide-react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { courseService } from '@/services/course.service';
+import { routeService } from '@/services/route.service';
+import type { Route, RouteFilters } from '@/@types/route';
 import { AdminLayout } from '@/components/layout';
 import { Button } from '@/components/Button';
-import { CourseFormModal } from '@/components/Courses/CourseFormModal';
-import { LinkInstitutionsModal } from '@/components/Courses/LinkInstitutionsModal';
-import { courseTypeLabels } from '@/enums/courseType';
+import { RouteFormModal } from '@/components/Routes/RouteFormModal';
 import {
     PageHeader,
     SearchBar,
@@ -17,35 +16,33 @@ import {
     type PaginationMeta
 } from '@/components/common';
 
-export default function CourseList() {
-    const [courses, setCourses] = useState<Course[]>([]);
+export default function RouteList() {
+    const [routes, setRoutes] = useState<Route[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [filters, setFilters] = useState<CourseFilters>({
+    const [filters, setFilters] = useState<RouteFilters>({
         per_page: 15,
         page: 1,
     });
     const [pagination, setPagination] = useState<PaginationMeta>();
     const [searchTerm, setSearchTerm] = useState('');
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-    const [editingCourseId, setEditingCourseId] = useState<number | undefined>(undefined);
-    const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
-    const [linkingCourseId, setLinkingCourseId] = useState<number | undefined>(undefined);
+    const [editingRouteId, setEditingRouteId] = useState<number | undefined>(undefined);
 
     useEffect(() => {
-        loadCourses();
+        loadRoutes();
     }, [filters]);
 
-    async function loadCourses() {
+    async function loadRoutes() {
         try {
             setLoading(true);
             setError(null);
-            const response = await courseService.getAll(filters);
-            setCourses(response.data);
+            const response = await routeService.getAll(filters);
+            setRoutes(response.data);
             setPagination(response.meta);
         } catch (err) {
-            setError('Erro ao carregar cursos. Tente novamente.');
-            console.error('Error loading courses:', err);
+            setError('Erro ao carregar rotas. Tente novamente.');
+            console.error('Error loading routes:', err);
         } finally {
             setLoading(false);
         }
@@ -60,42 +57,37 @@ export default function CourseList() {
     }
 
     function handleOpenCreateModal() {
-        setEditingCourseId(undefined);
+        setEditingRouteId(undefined);
         setIsFormModalOpen(true);
     }
 
-    function handleOpenLinkModal(id: number) {
-        setLinkingCourseId(id);
-        setIsLinkModalOpen(true);
+    function handleEdit(id: number) {
+        setEditingRouteId(id);
+        setIsFormModalOpen(true);
     }
 
-    function handleOpenEditModal(id: number) {
-        setEditingCourseId(id);
-        setIsFormModalOpen(true);
+    function handleFormSuccess() {
+        loadRoutes();
     }
 
     async function handleDelete(id: number, name: string) {
-        if (!confirm(`Tem certeza que deseja remover o curso "${name}"?`)) {
+        if (!confirm(`Tem certeza que deseja remover a rota "${name}"?`)) {
             return;
         }
 
         try {
-            await courseService.delete(id);
-            toast.success('Curso removido!', {
-                description: 'O curso foi removido com sucesso.',
+            await routeService.delete(id);
+            toast.success('Rota removida!', {
+                description: 'A rota foi removida com sucesso.',
             });
-            loadCourses();
+            loadRoutes();
         } catch (err: any) {
-            console.error('Error deleting course:', err);
-            const errorMessage = err.response?.data?.message || 'Não foi possível remover o curso. Tente novamente.';
-            toast.error('Erro ao remover curso', {
+            console.error('Error deleting route:', err);
+            const errorMessage = err.response?.data?.message || 'Não foi possível remover a rota. Tente novamente.';
+            toast.error('Erro ao remover rota', {
                 description: errorMessage,
             });
         }
-    }
-
-    function handleFormSuccess() {
-        loadCourses();
     }
 
     function handlePageChange(page: number) {
@@ -113,22 +105,18 @@ export default function CourseList() {
         }));
     }
 
-    function getCourseTypeLabel(courseType: string): string {
-        return courseTypeLabels[courseType as keyof typeof courseTypeLabels] || courseType;
-    }
-
-    const hasData = !loading && !error && courses.length > 0;
-    const isEmpty = !loading && !error && courses.length === 0;
+    const hasData = !loading && !error && routes.length > 0;
+    const isEmpty = !loading && !error && routes.length === 0;
 
     return (
         <AdminLayout>
             <div className="space-y-6">
                 {/* Header */}
                 <PageHeader
-                    title="Cursos"
-                    description="Gerencie os cursos do sistema"
+                    title="Rotas"
+                    description="Gerencie as rotas e paradas do sistema"
                     action={{
-                        label: 'Novo Curso',
+                        label: 'Nova Rota',
                         icon: <Plus className="w-4 h-4" />,
                         onClick: handleOpenCreateModal,
                     }}
@@ -140,7 +128,7 @@ export default function CourseList() {
                         searchTerm={searchTerm}
                         onSearchChange={setSearchTerm}
                         onSearch={handleSearch}
-                        placeholder="Buscar por nome..."
+                        placeholder="Buscar por nome da rota ou descrição..."
                         perPage={filters.per_page}
                         onPerPageChange={handlePerPageChange}
                     />
@@ -153,10 +141,10 @@ export default function CourseList() {
                     emptyState={
                         isEmpty ? (
                             <EmptyState
-                                title="Nenhum curso encontrado"
-                                description="Comece adicionando um novo curso ao sistema"
+                                title="Nenhuma rota encontrada"
+                                description="Comece adicionando uma nova rota ao sistema"
                                 action={{
-                                    label: 'Adicionar Curso',
+                                    label: 'Adicionar Rota',
                                     icon: <Plus className="w-4 h-4 mr-2" />,
                                     onClick: handleOpenCreateModal,
                                 }}
@@ -165,52 +153,67 @@ export default function CourseList() {
                     }
                 >
                     <DataTable.Header>
-                        <DataTable.Head className="w-[100px]">#</DataTable.Head>
-                        <DataTable.Head>Nome</DataTable.Head>
-                        <DataTable.Head>Tipo</DataTable.Head>
-                        <DataTable.Head>Descrição</DataTable.Head>
+                        <DataTable.Head className="w-[80px]">#</DataTable.Head>
+                        <DataTable.Head>Nome da Rota</DataTable.Head>
+                        <DataTable.Head>Paradas</DataTable.Head>
+                        <DataTable.Head>Primeira Parada</DataTable.Head>
+                        <DataTable.Head>Última Parada</DataTable.Head>
                         <DataTable.Head>Criado em</DataTable.Head>
                         <DataTable.Head className="text-right">Ações</DataTable.Head>
                     </DataTable.Header>
                     <DataTable.Body>
-                        {courses.map((course, index) => (
-                            <DataTable.Row key={course.id}>
+                        {routes.map((route, index) => (
+                            <DataTable.Row key={route.id}>
                                 <DataTable.Cell className="font-medium">
                                     {pagination ? pagination.from + index : index + 1}
                                 </DataTable.Cell>
                                 <DataTable.Cell className="font-medium">
-                                    {course.name}
+                                    <div>
+                                        <div className="font-medium truncate max-w-3xs">{route.route_name}</div>
+                                        {route.description && (
+                                            <div className="text-sm text-muted-foreground truncate max-w-3xs">
+                                                {route.description}
+                                            </div>
+                                        )}
+                                    </div>
                                 </DataTable.Cell>
                                 <DataTable.Cell>
-                                    {getCourseTypeLabel(course.course_type)}
-                                </DataTable.Cell>
-                                <DataTable.Cell className='truncate max-w-sm'>
-                                    {course.description || '-'}
+                                    <span className="font-semibold">{route.stops_amount}</span>
                                 </DataTable.Cell>
                                 <DataTable.Cell>
-                                    {new Date(course.created_at).toLocaleDateString('pt-BR')}
+                                    <div className="font-medium truncate max-w-3xs">{route.first_stop?.stop_name}</div>
+                                </DataTable.Cell>
+                                <DataTable.Cell>
+                                    <div className="font-medium truncate max-w-3xs">{route.last_stop?.stop_name}</div>
+                                </DataTable.Cell>
+                                <DataTable.Cell>
+                                    {new Date(route.created_at).toLocaleDateString('pt-BR')}
                                 </DataTable.Cell>
                                 <DataTable.Cell className="text-right">
                                     <div className="flex justify-end gap-2">
+                                        {/* TODO: Implementar visualização de rota
                                         <Button
                                             variant="secondary"
                                             size="icon-md"
-                                            onClick={() => handleOpenLinkModal(course.id)}
-                                            title="Vincular Instituições"
+                                            onClick={() => handleView(route.id)}
+                                            title="Visualizar"
                                         >
-                                            <Link className="w-5 h-5" />
+                                            <Eye className="w-5 h-5" />
                                         </Button>
+                                        */}
                                         <Button
                                             variant="secondary"
                                             size="icon-md"
-                                            onClick={() => handleOpenEditModal(course.id)}
+                                            onClick={() => handleEdit(route.id)}
+                                            title="Editar"
                                         >
                                             <Pencil className="w-5 h-5" />
                                         </Button>
                                         <Button
                                             variant="destructive"
                                             size="icon-md"
-                                            onClick={() => handleDelete(course.id, course.name)}
+                                            onClick={() => handleDelete(route.id, route.route_name)}
+                                            title="Deletar"
                                         >
                                             <Trash2 className="w-5 h-5" />
                                         </Button>
@@ -230,21 +233,12 @@ export default function CourseList() {
                 )}
 
                 {/* Form Modal */}
-                <CourseFormModal
+                <RouteFormModal
                     open={isFormModalOpen}
                     onOpenChange={setIsFormModalOpen}
-                    courseId={editingCourseId}
+                    routeId={editingRouteId}
                     onSuccess={handleFormSuccess}
                 />
-
-                {linkingCourseId && (
-                    <LinkInstitutionsModal
-                        open={isLinkModalOpen}
-                        onOpenChange={setIsLinkModalOpen}
-                        courseId={linkingCourseId}
-                        onSuccess={() => { }}
-                    />
-                )}
             </div>
         </AdminLayout>
     );
