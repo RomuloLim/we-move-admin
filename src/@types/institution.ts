@@ -10,6 +10,7 @@ type Institution = {
     zip_code: string;
     created_at: string;
     updated_at: string;
+    is_linked?: boolean;
 };
 
 type InstitutionFormData = {

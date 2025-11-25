@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Link } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { courseService } from '@/services/course.service';
 import { AdminLayout } from '@/components/layout';
 import { Button } from '@/components/Button';
 import { CourseFormModal } from '@/components/Courses/CourseFormModal';
+import { LinkInstitutionsModal } from '@/components/Courses/LinkInstitutionsModal';
 import { courseTypeLabels } from '@/enums/courseType';
 import {
     PageHeader,
@@ -28,6 +29,8 @@ export default function CourseList() {
     const [searchTerm, setSearchTerm] = useState('');
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
     const [editingCourseId, setEditingCourseId] = useState<number | undefined>(undefined);
+    const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+    const [linkingCourseId, setLinkingCourseId] = useState<number | undefined>(undefined);
 
     useEffect(() => {
         loadCourses();
@@ -59,6 +62,11 @@ export default function CourseList() {
     function handleOpenCreateModal() {
         setEditingCourseId(undefined);
         setIsFormModalOpen(true);
+    }
+
+    function handleOpenLinkModal(id: number) {
+        setLinkingCourseId(id);
+        setIsLinkModalOpen(true);
     }
 
     function handleOpenEditModal(id: number) {
@@ -187,6 +195,14 @@ export default function CourseList() {
                                         <Button
                                             variant="secondary"
                                             size="icon-md"
+                                            onClick={() => handleOpenLinkModal(course.id)}
+                                            title="Vincular Instituições"
+                                        >
+                                            <Link className="w-5 h-5" />
+                                        </Button>
+                                        <Button
+                                            variant="secondary"
+                                            size="icon-md"
                                             onClick={() => handleOpenEditModal(course.id)}
                                         >
                                             <Pencil className="w-5 h-5" />
@@ -220,6 +236,15 @@ export default function CourseList() {
                     courseId={editingCourseId}
                     onSuccess={handleFormSuccess}
                 />
+
+                {linkingCourseId && (
+                    <LinkInstitutionsModal
+                        open={isLinkModalOpen}
+                        onOpenChange={setIsLinkModalOpen}
+                        courseId={linkingCourseId}
+                        onSuccess={() => { }}
+                    />
+                )}
             </div>
         </AdminLayout>
     );
