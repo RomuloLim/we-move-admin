@@ -9,7 +9,7 @@ import {
     TablePagination,
 } from '@/components/common';
 
-import { Eye, Ban } from "lucide-react";
+import { Eye, Ban, CheckCircle } from "lucide-react";
 import { Button } from "@/components/Button";
 import { studentRequisitionService } from "@/services/studentRequisition.service";
 
@@ -24,7 +24,6 @@ export default function StudentRequisitionList() {
     });
     const [pagination, setPagination] = useState<PaginationMeta>();
     const [searchTerm, setSearchTerm] = useState('');
-    const [isFormModalOpen, setIsFormModalOpen] = useState(false);
 
     const hasData = !loading && !error && requisitions.length > 0;
     const isEmpty = !loading && !error && requisitions.length === 0;
@@ -45,21 +44,53 @@ export default function StudentRequisitionList() {
     }
 
     function handleSearch() {
-        // Logic to handle search
+        setFilters(prev => ({
+            ...prev,
+            protocol: searchTerm,
+            page: 1,
+        }));
     }
 
     function handleOpenViewModal(requisitionId: number) {
+        console.log('View', requisitionId);
+    }
 
+    function handleApproveRequisition(requisitionId: number) {
+        console.log('Approve', requisitionId);
     }
 
     function handleRejectRequisition(requisitionId: number) {
-
+        console.log('Reject', requisitionId);
     }
 
     function handlePageChange(page: number) {
         setFilters(prev => ({
             ...prev,
             page,
+        }));
+    }
+
+    function handlePerPageChange(perPage: number) {
+        setFilters(prev => ({
+            ...prev,
+            per_page: perPage,
+            page: 1,
+        }));
+    }
+
+    function handleStatusChange(status: string) {
+        setFilters(prev => ({
+            ...prev,
+            status: status || undefined,
+            page: 1,
+        }));
+    }
+
+    function handleAtuationFormChange(atuationForm: string) {
+        setFilters(prev => ({
+            ...prev,
+            atuation_form: atuationForm || undefined,
+            page: 1,
         }));
     }
 
@@ -82,10 +113,48 @@ export default function StudentRequisitionList() {
                         searchTerm={searchTerm}
                         onSearchChange={setSearchTerm}
                         onSearch={handleSearch}
-                        placeholder="Buscar por nome, cidade ou estado..."
+                        placeholder="Buscar por protocolo..."
                         perPage={filters.per_page}
-                        onPerPageChange={() => { handlePageChange(1); }}
+                        onPerPageChange={handlePerPageChange}
                     />
+
+                    {/* Filter by Status and Atuation Form */}
+                    <div className="flex gap-4">
+                        <div className="flex-1">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Status
+                            </label>
+                            <select
+                                value={filters.status || ''}
+                                onChange={(e) => handleStatusChange(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            >
+                                <option value="">Todos</option>
+                                <option value="pending">Pendente</option>
+                                <option value="approved">Aprovado</option>
+                                <option value="reproved">Reprovado</option>
+                                <option value="expired">Expirado</option>
+                            </select>
+                        </div>
+
+                        <div className="flex-1">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Forma de Atuação
+                            </label>
+                            <select
+                                value={filters.atuation_form || ''}
+                                onChange={(e) => handleAtuationFormChange(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            >
+                                <option value="">Todos</option>
+                                <option value="student">Estudante</option>
+                                <option value="bolsist">Bolsista</option>
+                                <option value="teacher">Professor</option>
+                                <option value="prep_course">Curso Preparatório</option>
+                                <option value="other">Outro</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <DataTable
@@ -104,22 +173,30 @@ export default function StudentRequisitionList() {
                         <DataTable.Head className="w-[100px]">Protocolo</DataTable.Head>
                         <DataTable.Head>Estudante</DataTable.Head>
                         <DataTable.Head>Status</DataTable.Head>
-                        <DataTable.Head>Instituição</DataTable.Head>
-                        <DataTable.Head>Curso</DataTable.Head>
-                        <DataTable.Head>Forma de Atuação</DataTable.Head>
+                        <DataTable.Head>Semestre</DataTable.Head>
+                        <DataTable.Head>Criado em</DataTable.Head>
                         <DataTable.Head className="text-right">Ações</DataTable.Head>
                     </DataTable.Header>
                     <DataTable.Body>
-                        {requisitions.map((requisition, index) => (
+                        {requisitions.map((requisition) => (
                             <DataTable.Row key={requisition.id}>
                                 <DataTable.Cell className="font-medium">
-                                    {pagination ? pagination.from + index : index + 1}
+                                    {requisition.protocol}
                                 </DataTable.Cell>
                                 <DataTable.Cell className="font-medium">
-                                    {requisition.name}
+                                    {requisition.student.user.name}
                                 </DataTable.Cell>
                                 <DataTable.Cell>
-                                    {requisition.city}/{requisition.state}
+                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
+                                        ${requisition.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                            requisition.status === 'approved' ? 'bg-green-100 text-green-800' :
+                                                'bg-red-100 text-red-800'}`}>
+                                        {requisition.status === 'pending' ? 'Pendente' :
+                                            requisition.status === 'approved' ? 'Aprovado' : 'Reprovado'}
+                                    </span>
+                                </DataTable.Cell>
+                                <DataTable.Cell>
+                                    {requisition.semester}º
                                 </DataTable.Cell>
                                 <DataTable.Cell>
                                     {new Date(requisition.created_at).toLocaleDateString('pt-BR')}
@@ -130,13 +207,24 @@ export default function StudentRequisitionList() {
                                             variant="secondary"
                                             size="icon-md"
                                             onClick={() => handleOpenViewModal(requisition.id)}
+                                            title="Ver detalhes"
                                         >
                                             <Eye className="w-5 h-5" />
+                                        </Button>
+                                        <Button
+                                            variant="secondary"
+                                            size="icon-md"
+                                            onClick={() => handleApproveRequisition(requisition.id)}
+                                            title="Aprovar"
+                                            className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                        >
+                                            <CheckCircle className="w-5 h-5" />
                                         </Button>
                                         <Button
                                             variant="destructive"
                                             size="icon-md"
                                             onClick={() => handleRejectRequisition(requisition.id)}
+                                            title="Reprovar"
                                         >
                                             <Ban className="w-5 h-5" />
                                         </Button>
@@ -146,6 +234,14 @@ export default function StudentRequisitionList() {
                         ))}
                     </DataTable.Body>
                 </DataTable>
+
+                {/* Pagination */}
+                {hasData && pagination && (
+                    <TablePagination
+                        pagination={pagination}
+                        onPageChange={handlePageChange}
+                    />
+                )}
             </div>
         </AdminLayout>
     );
