@@ -1,0 +1,55 @@
+export const ReprovedField = {
+    STREET_NAME: 'street_name',
+    HOUSE_NUMBER: 'house_number',
+    NEIGHBORHOOD: 'neighborhood',
+    CITY: 'city',
+    PHONE_CONTACT: 'phone_contact',
+    BIRTH_DATE: 'birth_date',
+    INSTITUTION_EMAIL: 'institution_email',
+    INSTITUTION_REGISTRATION: 'institution_registration',
+    INSTITUTION_COURSE_ID: 'institution_course_id',
+    ATUATION_FORM: 'atuation_form',
+    SEMESTER: 'semester',
+    ENROLLMENT_PROOF: 'enrollment_proof',
+    RESIDENCY_PROOF: 'residency_proof',
+    IDENTIFICATION_DOCUMENT: 'identification_document',
+    PROFILE_PICTURE: 'profile_picture',
+} as const;
+
+export type ReprovedField = typeof ReprovedField[keyof typeof ReprovedField];
+
+export const reprovedFieldLabels: Record<ReprovedField, string> = {
+    [ReprovedField.STREET_NAME]: 'Nome da Rua',
+    [ReprovedField.HOUSE_NUMBER]: 'Número da Casa',
+    [ReprovedField.NEIGHBORHOOD]: 'Bairro',
+    [ReprovedField.CITY]: 'Cidade',
+    [ReprovedField.PHONE_CONTACT]: 'Telefone de Contato',
+    [ReprovedField.BIRTH_DATE]: 'Data de Nascimento',
+    [ReprovedField.INSTITUTION_EMAIL]: 'Email Institucional',
+    [ReprovedField.INSTITUTION_REGISTRATION]: 'Matrícula Institucional',
+    [ReprovedField.INSTITUTION_COURSE_ID]: 'Curso',
+    [ReprovedField.ATUATION_FORM]: 'Forma de Atuação',
+    [ReprovedField.SEMESTER]: 'Semestre',
+    [ReprovedField.ENROLLMENT_PROOF]: 'Comprovante de Matrícula',
+    [ReprovedField.RESIDENCY_PROOF]: 'Comprovante de Residência',
+    [ReprovedField.IDENTIFICATION_DOCUMENT]: 'Documento de Identificação',
+    [ReprovedField.PROFILE_PICTURE]: 'Foto de Perfil',
+};
+
+export const availableReprovedFields: ReprovedField[] = [
+    ReprovedField.STREET_NAME,
+    ReprovedField.HOUSE_NUMBER,
+    ReprovedField.NEIGHBORHOOD,
+    ReprovedField.CITY,
+    ReprovedField.PHONE_CONTACT,
+    ReprovedField.BIRTH_DATE,
+    ReprovedField.INSTITUTION_EMAIL,
+    ReprovedField.INSTITUTION_REGISTRATION,
+    ReprovedField.INSTITUTION_COURSE_ID,
+    ReprovedField.ATUATION_FORM,
+    ReprovedField.SEMESTER,
+    ReprovedField.ENROLLMENT_PROOF,
+    ReprovedField.RESIDENCY_PROOF,
+    ReprovedField.IDENTIFICATION_DOCUMENT,
+    ReprovedField.PROFILE_PICTURE,
+];

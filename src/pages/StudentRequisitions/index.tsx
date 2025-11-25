@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from 'sonner';
 
 import { AdminLayout } from "@/components/layout";
 import {
@@ -9,6 +10,7 @@ import {
     TablePagination,
 } from '@/components/common';
 import { StudentRequisitionViewModal } from '@/components/StudentRequisitions/StudentRequisitionViewModal';
+import { ReproveRequisitionModal } from '@/components/StudentRequisitions/ReproveRequisitionModal';
 
 import { Eye, Ban, CheckCircle } from "lucide-react";
 import { Button } from "@/components/Button";
@@ -28,7 +30,9 @@ export default function StudentRequisitionList() {
     const [pagination, setPagination] = useState<PaginationMeta>();
     const [searchTerm, setSearchTerm] = useState('');
     const [viewModalOpen, setViewModalOpen] = useState(false);
+    const [reproveModalOpen, setReproveModalOpen] = useState(false);
     const [selectedRequisitionId, setSelectedRequisitionId] = useState<number | null>(null);
+    const [actionLoading, setActionLoading] = useState(false);
 
     const hasData = !loading && !error && requisitions.length > 0;
     const isEmpty = !loading && !error && requisitions.length === 0;
@@ -61,14 +65,58 @@ export default function StudentRequisitionList() {
         setViewModalOpen(true);
     }
 
-    function handleApproveRequisition(requisitionId: number) {
-        console.log('Approve', requisitionId);
-        // TODO: Implementar lógica de aprovação
+    async function handleApproveRequisition(requisitionId: number) {
+        try {
+            setActionLoading(true);
+            await studentRequisitionService.approve(requisitionId);
+
+            toast.success('Solicitação aprovada com sucesso!');
+
+            // Reload the list
+            await handleLoadRequisitions();
+
+            // Close modal if open
+            setViewModalOpen(false);
+        } catch (err: any) {
+            console.error('Error approving requisition:', err);
+            const errorMessage = err.response?.data?.message || 'Não foi possível aprovar a solicitação. Tente novamente.';
+            toast.error('Erro ao aprovar solicitação', {
+                description: errorMessage,
+            });
+        } finally {
+            setActionLoading(false);
+        }
     }
 
-    function handleRejectRequisition(requisitionId: number) {
-        console.log('Reject', requisitionId);
-        // TODO: Implementar lógica de rejeição
+    function handleOpenReproveModal(requisitionId: number) {
+        setSelectedRequisitionId(requisitionId);
+        setReproveModalOpen(true);
+    }
+
+    async function handleRejectRequisition(data: { deny_reason: string; reproved_fields: string[] }) {
+        if (!selectedRequisitionId) return;
+
+        try {
+            setActionLoading(true);
+            await studentRequisitionService.reprove(selectedRequisitionId, data);
+
+            toast.success('Solicitação reprovada com sucesso!');
+
+            // Reload the list
+            await handleLoadRequisitions();
+
+            // Close modals
+            setReproveModalOpen(false);
+            setViewModalOpen(false);
+        } catch (err: any) {
+            console.error('Error rejecting requisition:', err);
+            const errorMessage = err.response?.data?.message || 'Não foi possível reprovar a solicitação. Tente novamente.';
+            toast.error('Erro ao reprovar solicitação', {
+                description: errorMessage,
+            });
+        } finally {
+            setActionLoading(false);
+        }
     }
 
     function handlePageChange(page: number) {
@@ -222,14 +270,16 @@ export default function StudentRequisitionList() {
                                             onClick={() => handleApproveRequisition(requisition.id)}
                                             title="Aprovar"
                                             className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                            disabled={actionLoading}
                                         >
                                             <CheckCircle className="w-5 h-5" />
                                         </Button>
                                         <Button
                                             variant="destructive"
                                             size="icon-md"
-                                            onClick={() => handleRejectRequisition(requisition.id)}
+                                            onClick={() => handleOpenReproveModal(requisition.id)}
                                             title="Reprovar"
+                                            disabled={actionLoading}
                                         >
                                             <Ban className="w-5 h-5" />
                                         </Button>
@@ -254,7 +304,15 @@ export default function StudentRequisitionList() {
                     onOpenChange={setViewModalOpen}
                     requisitionId={selectedRequisitionId}
                     onApprove={handleApproveRequisition}
-                    onReject={handleRejectRequisition}
+                    onReject={(id) => handleOpenReproveModal(id)}
+                />
+
+                {/* Reprove Modal */}
+                <ReproveRequisitionModal
+                    open={reproveModalOpen}
+                    onOpenChange={setReproveModalOpen}
+                    onConfirm={handleRejectRequisition}
+                    loading={actionLoading}
                 />
             </div>
         </AdminLayout>

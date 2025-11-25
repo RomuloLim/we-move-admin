@@ -27,6 +27,7 @@ type StudentRequisition = {
     birth_date: string;
     atuation_form: string;
     deny_reason: string | null;
+    reproved_fields?: string[];
     institution_course: {
         id: number;
         institution_id: number;

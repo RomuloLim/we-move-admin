@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FileText, User, MapPin, Phone, GraduationCap, CheckCircle, Ban } from 'lucide-react';
+import { FileText, User, MapPin, Phone, GraduationCap, CheckCircle, Ban, AlertCircle } from 'lucide-react';
 
 import {
     Dialog,
@@ -12,6 +12,7 @@ import { studentRequisitionService } from '@/services/studentRequisition.service
 import { RequisitionStatus, requisitionStatusLabels, requisitionStatusColors } from '@/enums/requisitionStatus';
 import { atuationFormLabels } from '@/enums/atuationForm';
 import { documentTypeLabels } from '@/enums/documentType';
+import { reprovedFieldLabels } from '@/enums/reprovedFields';
 
 type StudentRequisitionViewModalProps = {
     open: boolean;
@@ -266,18 +267,41 @@ export function StudentRequisitionViewModal({
                                 </div>
                             )}
 
-                            {/* Deny Reason (if exists) */}
+                            {/* Deny Reason and Reproved Fields (if exists) */}
                             {requisition.deny_reason && (
-                                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                                    <h3 className="text-lg font-semibold text-red-900 mb-2">
-                                        Motivo da Rejeição
-                                    </h3>
-                                    <p className="text-red-800">{requisition.deny_reason}</p>
+                                <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-3">
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-red-900 mb-2">
+                                            Motivo da Rejeição
+                                        </h3>
+                                        <p className="text-red-800">{requisition.deny_reason}</p>
+                                    </div>
+
+                                    {requisition.reproved_fields && requisition.reproved_fields.length > 0 && (
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <AlertCircle className="w-5 h-5 text-red-700" />
+                                                <h4 className="text-base font-semibold text-red-900">
+                                                    Campos Reprovados
+                                                </h4>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                {requisition.reproved_fields.map((field, index) => (
+                                                    <span
+                                                        key={index}
+                                                        className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-red-100 text-red-800 border border-red-300"
+                                                    >
+                                                        {reprovedFieldLabels[field as keyof typeof reprovedFieldLabels] || field}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
                             {/* Action Buttons */}
-                            {requisition.status === RequisitionStatus.PENDING && (
+                            {requisition.status === 'pending' && (
                                 <div className="flex items-center justify-end gap-3 pt-4 border-t">
                                     <Button
                                         variant="destructive"
