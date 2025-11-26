@@ -17,6 +17,13 @@ import { Button } from "@/components/Button";
 import { studentRequisitionService } from "@/services/studentRequisition.service";
 import { RequisitionStatus, requisitionStatusLabels, requisitionStatusColors, availableRequisitionStatuses } from '@/enums/requisitionStatus';
 import { atuationFormLabels, availableAtuationForms } from '@/enums/atuationForm';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 
 export default function StudentRequisitionList() {
@@ -180,36 +187,44 @@ export default function StudentRequisitionList() {
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Status
                             </label>
-                            <select
-                                value={filters.status || ''}
-                                onChange={(e) => handleStatusChange(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            <Select
+                                value={filters.status || 'all'}
+                                onValueChange={(value) => handleStatusChange(value === 'all' ? '' : value)}
                             >
-                                <option value="">Todos</option>
-                                {availableRequisitionStatuses.map((status) => (
-                                    <option key={status} value={status}>
-                                        {requisitionStatusLabels[status]}
-                                    </option>
-                                ))}
-                            </select>
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Todos" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Todos</SelectItem>
+                                    {availableRequisitionStatuses.map((status) => (
+                                        <SelectItem key={status} value={status}>
+                                            {requisitionStatusLabels[status]}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         <div className="flex-1">
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Forma de Atuação
                             </label>
-                            <select
-                                value={filters.atuation_form || ''}
-                                onChange={(e) => handleAtuationFormChange(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            <Select
+                                value={filters.atuation_form || 'all'}
+                                onValueChange={(value) => handleAtuationFormChange(value === 'all' ? '' : value)}
                             >
-                                <option value="">Todos</option>
-                                {availableAtuationForms.map((form) => (
-                                    <option key={form} value={form}>
-                                        {atuationFormLabels[form]}
-                                    </option>
-                                ))}
-                            </select>
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Todos" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Todos</SelectItem>
+                                    {availableAtuationForms.map((form) => (
+                                        <SelectItem key={form} value={form}>
+                                            {atuationFormLabels[form]}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
                 </div>

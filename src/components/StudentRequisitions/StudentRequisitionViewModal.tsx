@@ -268,7 +268,7 @@ export function StudentRequisitionViewModal({
                             )}
 
                             {/* Deny Reason and Reproved Fields (if exists) */}
-                            {requisition.deny_reason && (
+                            {(requisition.deny_reason && requisition.status === RequisitionStatus.REPROVED) && (
                                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-3">
                                     <div>
                                         <h3 className="text-lg font-semibold text-red-900 mb-2">
