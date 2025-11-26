@@ -39,3 +39,36 @@ export type RouteResponse = {
         total: number;
     };
 };
+
+export type UserRoute = Route & {
+    is_linked: boolean;
+    linked_at: string | null;
+};
+
+export type UserRouteResponse = {
+    data: UserRoute[];
+    links: {
+        first: string | null;
+        last: string | null;
+        prev: string | null;
+        next: string | null;
+    };
+    meta: {
+        current_page: number;
+        current_page_url: string;
+        from: number | null;
+        path: string;
+        per_page: number;
+        to: number | null;
+    };
+};
+
+export type LinkRoutesPayload = {
+    user_id: number;
+    route_ids: number[];
+};
+
+export type UnlinkRoutesPayload = {
+    user_id: number;
+    route_ids: number[];
+};

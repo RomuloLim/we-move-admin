@@ -14,6 +14,7 @@ import CourseList from "@/pages/Courses";
 import RouteList from "@/pages/Routes";
 import { ComponentShowcase } from "./components/component-showcase";
 import StudentRequisitionList from "./pages/StudentRequisitions";
+import Reports from "@/pages/Reports";
 
 export function App() {
   return (
@@ -95,6 +96,25 @@ export function App() {
               element={
                 <ProtectedRoute>
                   <RouteList />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/student-requisitions"
+              element={
+                <ProtectedRoute>
+                  <StudentRequisitionList />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Reports Routes */}
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute>
+                  <Reports />
                 </ProtectedRoute>
               }
             />

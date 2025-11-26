@@ -18,7 +18,7 @@ type StudentRequisitionViewModalProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     requisitionId: number | null;
-    onApprove?: (id: number) => void;
+    onApprove?: (id: number, userId?: number) => void;
     onReject?: (id: number) => void;
 };
 
@@ -301,7 +301,7 @@ export function StudentRequisitionViewModal({
                             )}
 
                             {/* Action Buttons */}
-                            {requisition.status === 'pending' && (
+                            {requisition.status === RequisitionStatus.PENDING && (
                                 <div className="flex items-center justify-end gap-3 pt-4 border-t">
                                     <Button
                                         variant="destructive"
@@ -318,7 +318,23 @@ export function StudentRequisitionViewModal({
                                         variant="primary"
                                         onClick={() => {
                                             if (onApprove && requisition) {
-                                                onApprove(requisition.id);
+                                                onApprove(requisition.id, requisition.student.user.id);
+                                            }
+                                        }}
+                                        className="bg-green-600 hover:bg-green-700"
+                                    >
+                                        <CheckCircle className="w-4 h-4 mr-2" />
+                                        Aprovar Solicitação
+                                    </Button>
+                                </div>
+                            )}
+                            {requisition.status === RequisitionStatus.REPROVED && (
+                                <div className="flex items-center justify-end gap-3 pt-4 border-t">
+                                    <Button
+                                        variant="primary"
+                                        onClick={() => {
+                                            if (onApprove && requisition) {
+                                                onApprove(requisition.id, requisition.student.user.id);
                                             }
                                         }}
                                         className="bg-green-600 hover:bg-green-700"

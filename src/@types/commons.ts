@@ -32,3 +32,4 @@ type PaginatedResponse<T> = {
     links: PaginationLinks;
     meta: PaginationMeta;
 };
+

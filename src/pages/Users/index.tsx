@@ -12,7 +12,6 @@ import {
     EmptyState,
     DataTable,
     TablePagination,
-    type PaginationMeta
 } from '@/components/common';
 
 export default function UserList() {

@@ -1,21 +1,35 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/Button";
 import { AdminLayout } from "@/components/layout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MapPin, Calendar, TrendingUp, Eye, Trash, Clock } from "lucide-react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Users, MapPin, CheckCircle, Eye, Trash, Clock, Plus, Calendar } from "lucide-react";
+import { toast } from "sonner";
+import { NoticeFormModal } from "@/components/Notices/NoticeFormModal";
+import { getNotices, deleteNotice } from "@/services/notice.service";
+import { TablePagination } from "@/components/common";
+import type { Notice } from "@/@types/notice";
 
 export default function Home() {
+    const [notices, setNotices] = useState<Notice[]>([]);
+    const [loadingNotices, setLoadingNotices] = useState(false);
+    const [isNoticeModalOpen, setIsNoticeModalOpen] = useState(false);
+    const [deletingNoticeId, setDeletingNoticeId] = useState<number | null>(null);
+    const [pagination, setPagination] = useState<PaginationMeta>();
+    const [currentPage, setCurrentPage] = useState(1);
+
     const stats = [
         {
             title: "Total de Estudantes",
             value: "1,234",
-            // change: "+12.5%",
+            change: "",
             icon: Users,
             description: "Estudantes com requisição ativa"
         },
         {
             title: "Requisições Pendentes",
             value: "122",
-            // change: "+12.5%",
+            change: "",
             icon: Clock,
             description: "Estudantes com requisição pendente"
         },
@@ -26,13 +40,54 @@ export default function Home() {
             description: "em operação atualmente"
         },
         {
-            title: "Média de Ocupação Hoje",
-            value: "87%",
-            change: "8.1%",
-            icon: Calendar,
-            description: "desde ontem"
+            title: "Rotas finalizadas",
+            value: "12",
+            change: "",
+            icon: CheckCircle,
+            description: "Viagens Concluídas Hoje"
         },
     ];
+
+    useEffect(() => {
+        loadNotices();
+    }, []);
+
+    async function loadNotices(page: number = 1) {
+        try {
+            setLoadingNotices(true);
+            const response = await getNotices(page);
+            setNotices(response.data);
+            setPagination(response.meta);
+            setCurrentPage(page);
+        } catch (error) {
+            console.error('Erro ao carregar avisos:', error);
+            toast.error('Erro ao carregar avisos');
+        } finally {
+            setLoadingNotices(false);
+        }
+    }
+
+    async function handleDeleteNotice(id: number) {
+        try {
+            setDeletingNoticeId(id);
+            await deleteNotice(id);
+            toast.success('Aviso removido com sucesso!');
+            loadNotices(currentPage);
+        } catch (error: any) {
+            console.error('Erro ao remover aviso:', error);
+            toast.error(error.response?.data?.message || 'Erro ao remover aviso');
+        } finally {
+            setDeletingNoticeId(null);
+        }
+    }
+
+    function handleNoticeSuccess() {
+        loadNotices(1);
+    }
+
+    function handlePageChange(page: number) {
+        loadNotices(page);
+    }
 
     return (
         <AdminLayout title="Dashboard">
@@ -69,39 +124,76 @@ export default function Home() {
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                     <Card className="col-span-7">
                         <CardHeader>
-                            <CardTitle>Avisos ativos</CardTitle>
+                            <div className="flex items-center justify-between">
+                                <CardTitle>Avisos ativos</CardTitle>
+                                <Button
+                                    size="sm"
+                                    variant="primary"
+                                    onClick={() => setIsNoticeModalOpen(true)}
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Novo
+                                </Button>
+                            </div>
                         </CardHeader>
                         <CardContent>
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-4 rounded-lg border p-4">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                                        <Calendar className="h-5 w-5 text-primary" />
-                                    </div>
-                                    <div className="flex-1 space-y-1">
-                                        <p className="text-sm font-medium">Manutenção Programada <span className="text-xs text-muted-foreground">(40 Visualizações)</span></p>
-                                        <p className="text-xs text-muted-foreground">O sistema estará indisponível para manutenção em 25/12/2024, das 02:00 às 04:00.</p>
-                                    </div>
-
-                                    <Button size="icon-sm" variant="destructive">
-                                        <Trash />
-                                    </Button>
+                            {loadingNotices ? (
+                                <div className="space-y-4">
+                                    {[...Array(5)].map((_, index) => (
+                                        <div key={index} className="flex items-center gap-4 rounded-lg border p-4">
+                                            <Skeleton className="h-10 w-10 rounded-full" />
+                                            <div className="flex-1 space-y-2">
+                                                <Skeleton className="h-4 w-3/4" />
+                                                <Skeleton className="h-3 w-full" />
+                                            </div>
+                                            <Skeleton className="h-8 w-8 rounded-md" />
+                                        </div>
+                                    ))}
                                 </div>
-
-                                <div className="flex items-center gap-4 rounded-lg border p-4">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                                        <Calendar className="h-5 w-5 text-primary" />
-                                    </div>
-                                    <div className="flex-1 space-y-1">
-                                        <p className="text-sm font-medium">Atualização de Política de Privacidade <span className="text-xs text-muted-foreground">(40 Visualizações)</span></p>
-                                        <p className="text-xs text-muted-foreground">Nossa política de privacidade foi atualizada. Por favor, revise as mudanças até 31/12/2024.</p>
-                                    </div>
-
-                                    <Button size="icon-sm" variant="destructive">
-                                        <Trash />
-                                    </Button>
+                            ) : notices.length === 0 ? (
+                                <div className="text-center py-8 text-muted-foreground">
+                                    Nenhum aviso ativo no momento
                                 </div>
-                            </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {notices.map((notice) => (
+                                        <div key={notice.id} className="flex items-center gap-4 rounded-lg border p-4">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                                                <Calendar className="h-5 w-5 text-primary" />
+                                            </div>
+                                            <div className="flex-1 space-y-1">
+                                                <p className="text-sm font-medium">
+                                                    {notice.title}
+                                                    <span className="text-xs text-muted-foreground ml-2">
+                                                        ({notice.type_label})
+                                                    </span>
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">{notice.content}</p>
+                                            </div>
+
+                                            <Button
+                                                size="icon-sm"
+                                                variant="destructive"
+                                                onClick={() => handleDeleteNotice(notice.id)}
+                                                disabled={deletingNoticeId !== null}
+                                            >
+                                                {deletingNoticeId === notice.id ? "..." : <Trash />}
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </CardContent>
+                        <CardFooter>
+                            {pagination && pagination.last_page > 1 && (
+                                <div className="w-full">
+                                    <TablePagination
+                                        pagination={pagination}
+                                        onPageChange={handlePageChange}
+                                    />
+                                </div>
+                            )}
+                        </CardFooter>
                     </Card>
 
                     <Card className="col-span-4">
@@ -178,9 +270,9 @@ export default function Home() {
 
                     <Card className="col-span-3">
                         <CardHeader>
-                            <CardTitle>Rotas Populares</CardTitle>
+                            <CardTitle>Rotas Ativas</CardTitle>
                             <CardDescription>
-                                Rotas ativas com maior taxa de ocupação
+                                Rotas ativas no momento e quantidade de estudantes
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -191,7 +283,7 @@ export default function Home() {
                                             1
                                         </div>
                                         <div>
-                                            <p className="text-sm font-medium">Campus → Centro</p>
+                                            <p className="text-sm font-medium">Rota 08</p>
                                             <p className="text-xs text-muted-foreground">15 alunos</p>
                                         </div>
                                     </div>
@@ -203,7 +295,7 @@ export default function Home() {
                                             2
                                         </div>
                                         <div>
-                                            <p className="text-sm font-medium">Centro → Campus</p>
+                                            <p className="text-sm font-medium">Rota 09</p>
                                             <p className="text-xs text-muted-foreground">12 alunos</p>
                                         </div>
                                     </div>
@@ -215,7 +307,7 @@ export default function Home() {
                                             3
                                         </div>
                                         <div>
-                                            <p className="text-sm font-medium">Bairro Sul → Campus</p>
+                                            <p className="text-sm font-medium">Rota 14</p>
                                             <p className="text-xs text-muted-foreground">8 alunos</p>
                                         </div>
                                     </div>
@@ -226,6 +318,12 @@ export default function Home() {
                     </Card>
                 </div>
             </div>
+
+            <NoticeFormModal
+                open={isNoticeModalOpen}
+                onOpenChange={setIsNoticeModalOpen}
+                onSuccess={handleNoticeSuccess}
+            />
         </AdminLayout>
     );
 }

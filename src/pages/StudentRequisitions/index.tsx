@@ -11,12 +11,14 @@ import {
 } from '@/components/common';
 import { StudentRequisitionViewModal } from '@/components/StudentRequisitions/StudentRequisitionViewModal';
 import { ReproveRequisitionModal } from '@/components/StudentRequisitions/ReproveRequisitionModal';
+import { LinkRoutesModal } from '@/components/StudentRequisitions/LinkRoutesModal';
 
-import { Eye, Ban, CheckCircle } from "lucide-react";
+import { Eye, Ban, CheckCircle, MapPin } from "lucide-react";
 import { Button } from "@/components/Button";
 import { studentRequisitionService } from "@/services/studentRequisition.service";
 import { RequisitionStatus, requisitionStatusLabels, requisitionStatusColors, availableRequisitionStatuses } from '@/enums/requisitionStatus';
 import { atuationFormLabels, availableAtuationForms } from '@/enums/atuationForm';
+
 import {
     Select,
     SelectContent,
@@ -38,7 +40,9 @@ export default function StudentRequisitionList() {
     const [searchTerm, setSearchTerm] = useState('');
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [reproveModalOpen, setReproveModalOpen] = useState(false);
+    const [linkRoutesModalOpen, setLinkRoutesModalOpen] = useState(false);
     const [selectedRequisitionId, setSelectedRequisitionId] = useState<number | null>(null);
+    const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
     const [actionLoading, setActionLoading] = useState(false);
 
     const hasData = !loading && !error && requisitions.length > 0;
@@ -60,7 +64,7 @@ export default function StudentRequisitionList() {
     }
 
     function handleSearch() {
-        setFilters(prev => ({
+        setFilters((prev: StudentRequisitionFilters) => ({
             ...prev,
             protocol: searchTerm,
             page: 1,
@@ -72,7 +76,7 @@ export default function StudentRequisitionList() {
         setViewModalOpen(true);
     }
 
-    async function handleApproveRequisition(requisitionId: number) {
+    async function handleApproveRequisition(requisitionId: number, userId?: number) {
         try {
             setActionLoading(true);
             await studentRequisitionService.approve(requisitionId);
@@ -84,6 +88,12 @@ export default function StudentRequisitionList() {
 
             // Close modal if open
             setViewModalOpen(false);
+
+            // Open link routes modal if userId is provided
+            if (userId) {
+                setSelectedUserId(userId);
+                setLinkRoutesModalOpen(true);
+            }
         } catch (err: any) {
             console.error('Error approving requisition:', err);
             const errorMessage = err.response?.data?.message || 'Não foi possível aprovar a solicitação. Tente novamente.';
@@ -98,6 +108,11 @@ export default function StudentRequisitionList() {
     function handleOpenReproveModal(requisitionId: number) {
         setSelectedRequisitionId(requisitionId);
         setReproveModalOpen(true);
+    }
+
+    function handleOpenLinkRoutesModal(userId: number) {
+        setSelectedUserId(userId);
+        setLinkRoutesModalOpen(true);
     }
 
     async function handleRejectRequisition(data: { deny_reason: string; reproved_fields: string[] }) {
@@ -127,14 +142,14 @@ export default function StudentRequisitionList() {
     }
 
     function handlePageChange(page: number) {
-        setFilters(prev => ({
+        setFilters((prev: StudentRequisitionFilters) => ({
             ...prev,
             page,
         }));
     }
 
     function handlePerPageChange(perPage: number) {
-        setFilters(prev => ({
+        setFilters((prev: StudentRequisitionFilters) => ({
             ...prev,
             per_page: perPage,
             page: 1,
@@ -142,7 +157,7 @@ export default function StudentRequisitionList() {
     }
 
     function handleStatusChange(status: string) {
-        setFilters(prev => ({
+        setFilters((prev: StudentRequisitionFilters) => ({
             ...prev,
             status: (status as StudentRequisitionFilters['status']) || undefined,
             page: 1,
@@ -150,7 +165,7 @@ export default function StudentRequisitionList() {
     }
 
     function handleAtuationFormChange(atuationForm: string) {
-        setFilters(prev => ({
+        setFilters((prev: StudentRequisitionFilters) => ({
             ...prev,
             atuation_form: (atuationForm as StudentRequisitionFilters['atuation_form']) || undefined,
             page: 1,
@@ -279,25 +294,52 @@ export default function StudentRequisitionList() {
                                         >
                                             <Eye className="w-5 h-5" />
                                         </Button>
-                                        <Button
-                                            variant="secondary"
-                                            size="icon-md"
-                                            onClick={() => handleApproveRequisition(requisition.id)}
-                                            title="Aprovar"
-                                            className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                                            disabled={actionLoading}
-                                        >
-                                            <CheckCircle className="w-5 h-5" />
-                                        </Button>
-                                        <Button
-                                            variant="destructive"
-                                            size="icon-md"
-                                            onClick={() => handleOpenReproveModal(requisition.id)}
-                                            title="Reprovar"
-                                            disabled={actionLoading}
-                                        >
-                                            <Ban className="w-5 h-5" />
-                                        </Button>
+                                        {requisition.status === RequisitionStatus.APPROVED && (
+                                            <Button
+                                                variant="secondary"
+                                                size="icon-md"
+                                                onClick={() => handleOpenLinkRoutesModal(requisition.student.user.id)}
+                                                title="Vincular rotas"
+                                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                            >
+                                                <MapPin className="w-5 h-5" />
+                                            </Button>
+                                        )}
+                                        {requisition.status === RequisitionStatus.REPROVED && (
+                                            <Button
+                                                variant="secondary"
+                                                size="icon-md"
+                                                onClick={() => handleApproveRequisition(requisition.id, requisition.student.user.id)}
+                                                title="Aprovar"
+                                                className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                                disabled={actionLoading}
+                                            >
+                                                <CheckCircle className="w-5 h-5" />
+                                            </Button>
+                                        )}
+                                        {requisition.status === RequisitionStatus.PENDING && (
+                                            <>
+                                                <Button
+                                                    variant="secondary"
+                                                    size="icon-md"
+                                                    onClick={() => handleApproveRequisition(requisition.id, requisition.student.user.id)}
+                                                    title="Aprovar"
+                                                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                                    disabled={actionLoading}
+                                                >
+                                                    <CheckCircle className="w-5 h-5" />
+                                                </Button>
+                                                <Button
+                                                    variant="destructive"
+                                                    size="icon-md"
+                                                    onClick={() => handleOpenReproveModal(requisition.id)}
+                                                    title="Reprovar"
+                                                    disabled={actionLoading}
+                                                >
+                                                    <Ban className="w-5 h-5" />
+                                                </Button>
+                                            </>
+                                        )}
                                     </div>
                                 </DataTable.Cell>
                             </DataTable.Row>
@@ -328,6 +370,14 @@ export default function StudentRequisitionList() {
                     onOpenChange={setReproveModalOpen}
                     onConfirm={handleRejectRequisition}
                     loading={actionLoading}
+                />
+
+                {/* Link Routes Modal */}
+                <LinkRoutesModal
+                    open={linkRoutesModalOpen}
+                    onOpenChange={setLinkRoutesModalOpen}
+                    userId={selectedUserId!}
+                    onSuccess={handleLoadRequisitions}
                 />
             </div>
         </AdminLayout>
