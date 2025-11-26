@@ -13,6 +13,7 @@ import InstitutionList from "@/pages/Institutions";
 import CourseList from "@/pages/Courses";
 import RouteList from "@/pages/Routes";
 import { ComponentShowcase } from "./components/component-showcase";
+import StudentRequisitionList from "./pages/StudentRequisitions";
 
 export function App() {
   return (
@@ -75,6 +76,15 @@ export function App() {
               element={
                 <ProtectedRoute>
                   <CourseList />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/student-requisitions"
+              element={
+                <ProtectedRoute>
+                  <StudentRequisitionList />
                 </ProtectedRoute>
               }
             />
