@@ -1,4 +1,4 @@
-type StudentRequisitionDocument = {
+export type StudentRequisitionDocument = {
     id: number;
     student_id: number;
     type: 'residency_proof' | 'identification_document' | 'profile_picture' | 'enrollment_proof';
@@ -13,7 +13,7 @@ type StudentRequisitionDocument = {
     };
 }
 
-type StudentRequisition = {
+export type StudentRequisition = {
     id: number;
     student_id: number;
     protocol: string;
@@ -53,9 +53,9 @@ type StudentRequisition = {
     updated_at: string;
 }
 
-type StudentRequisitionFormData = Omit<StudentRequisition, 'id' | 'created_at' | 'updated_at'>;
+export type StudentRequisitionFormData = Omit<StudentRequisition, 'id' | 'created_at' | 'updated_at'>;
 
-type StudentRequisitionFilters = BasicFilter & {
+export type StudentRequisitionFilters = BasicFilter & {
     atuation_form?: 'student' | 'bolsist' | 'teacher' | 'prep_course' | 'other';
     deny_reason?: string | null;
     institution_course_id?: number | null;
@@ -63,6 +63,6 @@ type StudentRequisitionFilters = BasicFilter & {
     status?: 'pending' | 'approved' | 'reproved' | 'expired';
 };
 
-type StudentRequisitionResource = StudentRequisition;
+export type StudentRequisitionResource = StudentRequisition;
 
-type StudentRequisitionListResponse = PaginatedResponse<StudentRequisition>;
+export type StudentRequisitionListResponse = PaginatedResponse<StudentRequisition>;

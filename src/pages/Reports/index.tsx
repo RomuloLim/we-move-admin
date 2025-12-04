@@ -8,44 +8,27 @@ import { Calendar, Download, BarChart3, Users, TrendingUp } from "lucide-react";
 
 // Mock data
 const mockRoutes = [
-    { id: 1, name: "Rota 01 - Centro/Campus Principal" },
-    { id: 2, name: "Rota 02 - Zona Norte/Campus Tecnológico" },
-    { id: 3, name: "Rota 03 - Zona Sul/Campus Saúde" },
-    { id: 4, name: "Rota 04 - Zona Leste/Campus Exatas" },
+    { id: 1, name: "Rota 08" },
 ];
 
 const mockInstitutions = [
-    { id: 1, name: "Universidade Federal", students: 1234 },
-    { id: 2, name: "Instituto Tecnológico", students: 856 },
-    { id: 3, name: "Faculdade de Medicina", students: 645 },
-    { id: 4, name: "Universidade Estadual", students: 523 },
-    { id: 5, name: "Centro Universitário", students: 412 },
+    { id: 1, name: "Universidade Federal", students: 10 },
+    { id: 2, name: "Instituto Tecnológico", students: 10 },
+    { id: 3, name: "Faculdade de Medicina", students: 5 },
 ];
 
 const mockBoardingsByRoute = [
-    { date: "01/11", embarques: 45 },
-    { date: "02/11", embarques: 48 },
-    { date: "03/11", embarques: 42 },
-    { date: "04/11", embarques: 50 },
-    { date: "05/11", embarques: 47 },
-    { date: "08/11", embarques: 46 },
-    { date: "09/11", embarques: 49 },
-    { date: "10/11", embarques: 51 },
-    { date: "11/11", embarques: 44 },
-    { date: "12/11", embarques: 48 },
+    { date: "01/11", embarques: 2 },
+    { date: "02/11", embarques: 3 },
+    { date: "03/11", embarques: 7 },
+    { date: "04/11", embarques: 1 },
 ];
 
 const mockAttendanceByRoute = [
-    { date: "01/11", presentes: 45, ausentes: 5 },
-    { date: "02/11", presentes: 46, ausentes: 4 },
-    { date: "03/11", presentes: 42, ausentes: 8 },
-    { date: "04/11", presentes: 48, ausentes: 2 },
-    { date: "05/11", presentes: 47, ausentes: 3 },
-    { date: "08/11", presentes: 44, ausentes: 6 },
-    { date: "09/11", presentes: 49, ausentes: 1 },
-    { date: "10/11", presentes: 50, ausentes: 0 },
-    { date: "11/11", presentes: 43, ausentes: 7 },
-    { date: "12/11", presentes: 48, ausentes: 2 },
+    { date: "01/11", presentes: 1, ausentes: 5 },
+    { date: "02/11", presentes: 2, ausentes: 4 },
+    { date: "03/11", presentes: 2, ausentes: 8 },
+    { date: "04/11", presentes: 0, ausentes: 3 },
 ];
 
 export default function Reports() {

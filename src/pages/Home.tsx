@@ -7,8 +7,10 @@ import { Users, MapPin, CheckCircle, Eye, Trash, Clock, Plus, Calendar } from "l
 import { toast } from "sonner";
 import { NoticeFormModal } from "@/components/Notices/NoticeFormModal";
 import { getNotices, deleteNotice } from "@/services/notice.service";
+import { studentRequisitionService } from "@/services/studentRequisition.service";
 import { TablePagination } from "@/components/common";
 import type { Notice } from "@/@types/notice";
+import type { StudentRequisition } from "@/@types/studentRequisition";
 
 export default function Home() {
     const [notices, setNotices] = useState<Notice[]>([]);
@@ -17,31 +19,33 @@ export default function Home() {
     const [deletingNoticeId, setDeletingNoticeId] = useState<number | null>(null);
     const [pagination, setPagination] = useState<PaginationMeta>();
     const [currentPage, setCurrentPage] = useState(1);
+    const [recentRequisitions, setRecentRequisitions] = useState<StudentRequisition[]>([]);
+    const [loadingRequisitions, setLoadingRequisitions] = useState(false);
 
     const stats = [
         {
             title: "Total de Estudantes",
-            value: "1,234",
+            value: "25",
             change: "",
             icon: Users,
             description: "Estudantes com requisição ativa"
         },
         {
             title: "Requisições Pendentes",
-            value: "122",
+            value: "9",
             change: "",
             icon: Clock,
             description: "Estudantes com requisição pendente"
         },
         {
             title: "Rotas Ativas",
-            value: "89/100",
+            value: "0/1",
             icon: MapPin,
             description: "em operação atualmente"
         },
         {
             title: "Rotas finalizadas",
-            value: "12",
+            value: "1",
             change: "",
             icon: CheckCircle,
             description: "Viagens Concluídas Hoje"
@@ -50,6 +54,7 @@ export default function Home() {
 
     useEffect(() => {
         loadNotices();
+        loadRecentRequisitions();
     }, []);
 
     async function loadNotices(page: number = 1) {
@@ -64,6 +69,22 @@ export default function Home() {
             toast.error('Erro ao carregar avisos');
         } finally {
             setLoadingNotices(false);
+        }
+    }
+
+    async function loadRecentRequisitions() {
+        try {
+            setLoadingRequisitions(true);
+            const response = await studentRequisitionService.getAll({
+                per_page: 4,
+                status: 'pending'
+            });
+            setRecentRequisitions(response.data.slice(0, 4));
+        } catch (error) {
+            console.error('Erro ao carregar solicitações recentes:', error);
+            toast.error('Erro ao carregar solicitações recentes');
+        } finally {
+            setLoadingRequisitions(false);
         }
     }
 
@@ -204,67 +225,47 @@ export default function Home() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-4 rounded-lg border p-4">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                                        <Users className="h-5 w-5 text-primary" />
-                                    </div>
-                                    <div className="flex-1 space-y-1">
-                                        <p className="text-sm font-medium">Rômulo Lima Fonseca</p>
-                                        <p className="text-xs text-muted-foreground">Ciência da Computação - UFC (há 5 min)</p>
-                                    </div>
-                                    <span className="text-xs text-muted-foreground">
-                                        <Button size="icon-sm" variant="primary">
-                                            <Eye />
-                                        </Button>
-                                    </span>
+                            {loadingRequisitions ? (
+                                <div className="space-y-4">
+                                    {[...Array(4)].map((_, index) => (
+                                        <div key={index} className="flex items-center gap-4 rounded-lg border p-4">
+                                            <Skeleton className="h-10 w-10 rounded-full" />
+                                            <div className="flex-1 space-y-2">
+                                                <Skeleton className="h-4 w-3/4" />
+                                                <Skeleton className="h-3 w-full" />
+                                            </div>
+                                            <Skeleton className="h-8 w-8 rounded-md" />
+                                        </div>
+                                    ))}
                                 </div>
-
-                                <div className="flex items-center gap-4 rounded-lg border p-4">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                                        <Users className="h-5 w-5 text-primary" />
-                                    </div>
-                                    <div className="flex-1 space-y-1">
-                                        <p className="text-sm font-medium">Rômulo Lima Fonseca</p>
-                                        <p className="text-xs text-muted-foreground">Ciência da Computação - UFC (há 5 min)</p>
-                                    </div>
-                                    <span className="text-xs text-muted-foreground">
-                                        <Button size="icon-sm" variant="primary">
-                                            <Eye />
-                                        </Button>
-                                    </span>
+                            ) : recentRequisitions.length === 0 ? (
+                                <div className="text-center py-8 text-muted-foreground">
+                                    Nenhuma solicitação recente
                                 </div>
-
-                                <div className="flex items-center gap-4 rounded-lg border p-4">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                                        <Users className="h-5 w-5 text-primary" />
-                                    </div>
-                                    <div className="flex-1 space-y-1">
-                                        <p className="text-sm font-medium">Rômulo Lima Fonseca</p>
-                                        <p className="text-xs text-muted-foreground">Ciência da Computação - UFC (há 5 min)</p>
-                                    </div>
-                                    <span className="text-xs text-muted-foreground">
-                                        <Button size="icon-sm" variant="primary">
-                                            <Eye />
-                                        </Button>
-                                    </span>
+                            ) : (
+                                <div className="space-y-4">
+                                    {recentRequisitions.map((requisition) => (
+                                        <div key={requisition.id} className="flex items-center gap-4 rounded-lg border p-4">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                                                <Users className="h-5 w-5 text-primary" />
+                                            </div>
+                                            <div className="flex-1 space-y-1">
+                                                <p className="text-sm font-medium">
+                                                    {requisition.student?.user?.name || 'Nome não disponível'}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {requisition.institution_course?.course?.name || 'Curso não disponível'}
+                                                </p>
+                                            </div>
+                                            <span className="text-xs text-muted-foreground">
+                                                <Button size="icon-sm" variant="primary">
+                                                    <Eye />
+                                                </Button>
+                                            </span>
+                                        </div>
+                                    ))}
                                 </div>
-
-                                <div className="flex items-center gap-4 rounded-lg border p-4">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                                        <Users className="h-5 w-5 text-primary" />
-                                    </div>
-                                    <div className="flex-1 space-y-1">
-                                        <p className="text-sm font-medium">Rômulo Lima Fonseca</p>
-                                        <p className="text-xs text-muted-foreground">Ciência da Computação - UFC (há 5 min)</p>
-                                    </div>
-                                    <span className="text-xs text-muted-foreground">
-                                        <Button size="icon-sm" variant="primary">
-                                            <Eye />
-                                        </Button>
-                                    </span>
-                                </div>
-                            </div>
+                            )}
                         </CardContent>
                     </Card>
 
@@ -288,30 +289,6 @@ export default function Home() {
                                         </div>
                                     </div>
                                     <span className="text-sm font-medium">45%</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-medium">
-                                            2
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium">Rota 09</p>
-                                            <p className="text-xs text-muted-foreground">12 alunos</p>
-                                        </div>
-                                    </div>
-                                    <span className="text-sm font-medium">30%</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-medium">
-                                            3
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium">Rota 14</p>
-                                            <p className="text-xs text-muted-foreground">8 alunos</p>
-                                        </div>
-                                    </div>
-                                    <span className="text-sm font-medium">25%</span>
                                 </div>
                             </div>
                         </CardContent>
